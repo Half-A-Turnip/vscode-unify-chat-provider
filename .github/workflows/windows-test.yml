@@ -35,6 +35,7 @@ jobs:
       - name: Run Proposed API tests
         shell: pwsh
         run: |
+          $env:NO_COLOR = '1'
           & npx vitest run `
             test/unit/proposed-api.test.ts `
             test/unit/proposed-api-product-write.test.ts `
@@ -44,6 +45,7 @@ jobs:
           Get-Content vitest-output.txt
           if ($exitCode -ne 0) {
             $details = (Get-Content vitest-output.txt -Tail 100) -join "`n"
+            $details = $details -replace '(-EncodedCommand )[A-Za-z0-9+/=]+', '$1[omitted]'
             $escaped = $details.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
             Write-Output "::error title=Windows Proposed API tests failed::$escaped"
             exit $exitCode

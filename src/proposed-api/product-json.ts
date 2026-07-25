@@ -436,7 +436,7 @@ function buildWindowsElevationLauncher(elevatedScript: string): string {
     '[Console]::Error.WriteLine(($_ | Out-String))',
     `exit ${ELEVATION_FAILED_EXIT_CODE}`,
     '}',
-  ].join('; ');
+  ].join('\n');
 }
 
 function buildWindowsProductJsonScript(
@@ -470,7 +470,7 @@ function buildWindowsProductJsonScript(
     '} finally {',
     `Remove-Item -LiteralPath ${temporary} -Force -ErrorAction SilentlyContinue`,
     '}',
-  ].join('; ');
+  ].join('\n');
 }
 
 function buildPosixProductJsonScript(

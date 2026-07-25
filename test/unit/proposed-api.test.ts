@@ -444,6 +444,7 @@ describe('product.json Proposed API configuration', () => {
     expect(launcher).toContain('Start-Process');
     expect(launcher).toContain('-Verb RunAs -Wait -PassThru');
     expect(launcher).toContain('exit 72');
+    expect(launcher).not.toContain('{;');
     const elevatedScript = Buffer.from(elevatedCommand, 'base64').toString(
       'utf16le',
     );
@@ -455,6 +456,7 @@ describe('product.json Proposed API configuration', () => {
     expect(elevatedScript).toContain('$null, $true)');
     expect(elevatedScript).toContain('exit 73');
     expect(elevatedScript).toContain('exit 74');
+    expect(elevatedScript).not.toContain('{;');
     expect(() =>
       buildProductJsonElevatedCommand(
         environment,
