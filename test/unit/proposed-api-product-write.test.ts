@@ -308,7 +308,9 @@ describe('product.json permission and race handling', () => {
       exitCode: 74,
       stderr: 'Copy-Item: Access to product.json was denied (EACCES).',
     });
-    await expect(operation).rejects.toThrow(fileSystem.targetPath);
+    await expect(operation).rejects.toThrow(
+      JSON.stringify(fileSystem.targetPath),
+    );
     expect(
       [...fileSystem.files.keys()].some((path) =>
         path.endsWith('.elevated-error.txt'),
