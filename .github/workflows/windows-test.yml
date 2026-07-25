@@ -26,8 +26,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Type-check extension
+        run: npx tsc -p . --noEmit
+
+      - name: Type-check tests
+        run: npx tsc -p test/tsconfig.json
+
+      - name: Build chat-lib runtime
+        run: npm run build:chat-lib-runtime
+
       - name: Run unit tests
-        run: npm run test:unit -- --reporter=default --reporter=github-actions
+        run: npx vitest run --reporter=default --reporter=github-actions
 
       - name: Build extension
         run: npm run compile
