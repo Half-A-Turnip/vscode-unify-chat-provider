@@ -1,8 +1,11 @@
+import { join, resolve } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const fileSystem = vi.hoisted(() => ({
   files: new Map<string, Buffer>(),
-  targetPath: '/app/product.json',
+  targetPath: '',
+  directWritePrefix: '',
+  stagingPrefix: '',
   directWriteErrorCode: undefined as string | undefined,
   changeBeforeFirstHashCheck: false,
   targetReadCount: 0,
@@ -66,7 +69,7 @@ vi.mock('node:fs/promises', () => ({
   writeFile: vi.fn(
     async (path: string, value: Uint8Array, options?: { flag?: string }) => {
       if (
-        path.startsWith('/app/.product.json.') &&
+        path.startsWith(fileSystem.directWritePrefix) &&
         fileSystem.directWriteErrorCode
       ) {
         throw codedError(fileSystem.directWriteErrorCode);
@@ -125,7 +128,7 @@ vi.mock('node:child_process', () => ({
       if (windowsElevation.error && windowsElevation.diagnostic) {
         const stagingPath = [...fileSystem.files.keys()].find(
           (path) =>
-            path.startsWith('/storage/product.') &&
+            path.startsWith(fileSystem.stagingPrefix) &&
             path.endsWith('.staged.json'),
         );
         if (stagingPath) {
@@ -160,12 +163,15 @@ const proposals = [
   'languageModelThinkingPart',
 ] as const;
 
+const appRoot = resolve('mock-app');
+const globalStoragePath = resolve('mock-storage');
+
 const environment: ProductJsonEnvironment = {
   uiKind: vscode.UIKind.Desktop,
   remoteName: undefined,
-  appRoot: '/app',
+  appRoot,
   extensionId: 'SmallMain.vscode-unify-chat-provider',
-  globalStoragePath: '/storage',
+  globalStoragePath,
   platform: 'linux',
 };
 
@@ -184,6 +190,9 @@ function resetFixture(): Record<string, unknown> {
     applicationName: 'code',
     stableField: true,
   };
+  fileSystem.targetPath = join(appRoot, 'product.json');
+  fileSystem.directWritePrefix = join(appRoot, '.product.json.');
+  fileSystem.stagingPrefix = join(globalStoragePath, 'product.');
   fileSystem.files.clear();
   fileSystem.files.set(fileSystem.targetPath, serialized(original));
   fileSystem.directWriteErrorCode = undefined;
@@ -279,7 +288,7 @@ describe('product.json permission and race handling', () => {
       writeProductJsonProposals(windowsEnvironment, proposals),
     ).rejects.toMatchObject({
       code: 'cancelled',
-      targetPath: '/app/product.json',
+      targetPath: fileSystem.targetPath,
       exitCode: 72,
     });
   });
@@ -295,11 +304,11 @@ describe('product.json permission and race handling', () => {
     );
     await expect(operation).rejects.toMatchObject({
       code: 'write-failed',
-      targetPath: '/app/product.json',
+      targetPath: fileSystem.targetPath,
       exitCode: 74,
       stderr: 'Copy-Item: Access to product.json was denied (EACCES).',
     });
-    await expect(operation).rejects.toThrow('/app/product.json');
+    await expect(operation).rejects.toThrow(fileSystem.targetPath);
     expect(
       [...fileSystem.files.keys()].some((path) =>
         path.endsWith('.elevated-error.txt'),
