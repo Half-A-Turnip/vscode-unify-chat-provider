@@ -14,6 +14,18 @@ const elevation = vi.hoisted(() => ({
   calls: [] as string[],
 }));
 
+const windowsElevation = vi.hoisted(() => ({
+  error: undefined as Error | undefined,
+  stderr: '',
+  diagnostic: undefined as string | undefined,
+  replacement: undefined as Buffer | undefined,
+  calls: [] as Array<{
+    executable: string;
+    args: string[];
+    options: unknown;
+  }>,
+}));
+
 function codedError(code: string, message = code): Error {
   const error = new Error(message);
   Reflect.set(error, 'code', code);
@@ -95,6 +107,43 @@ vi.mock('@vscode/sudo-prompt', () => ({
   ),
 }));
 
+vi.mock('node:child_process', () => ({
+  execFile: vi.fn(
+    (
+      executable: string,
+      args: string[],
+      options: unknown,
+      callback: (error: Error | null, stdout: string, stderr: string) => void,
+    ) => {
+      windowsElevation.calls.push({ executable, args, options });
+      if (!windowsElevation.error && windowsElevation.replacement) {
+        fileSystem.files.set(
+          fileSystem.targetPath,
+          Buffer.from(windowsElevation.replacement),
+        );
+      }
+      if (windowsElevation.error && windowsElevation.diagnostic) {
+        const stagingPath = [...fileSystem.files.keys()].find(
+          (path) =>
+            path.startsWith('/storage/product.') &&
+            path.endsWith('.staged.json'),
+        );
+        if (stagingPath) {
+          fileSystem.files.set(
+            `${stagingPath}.elevated-error.txt`,
+            Buffer.from(windowsElevation.diagnostic),
+          );
+        }
+      }
+      callback(
+        windowsElevation.error ?? null,
+        '',
+        windowsElevation.stderr,
+      );
+    },
+  ),
+}));
+
 import * as vscode from 'vscode';
 import {
   createUpdatedProductRoot,
@@ -118,6 +167,11 @@ const environment: ProductJsonEnvironment = {
   extensionId: 'SmallMain.vscode-unify-chat-provider',
   globalStoragePath: '/storage',
   platform: 'linux',
+};
+
+const windowsEnvironment: ProductJsonEnvironment = {
+  ...environment,
+  platform: 'win32',
 };
 
 function serialized(value: Record<string, unknown>): Buffer {
@@ -144,6 +198,11 @@ function resetFixture(): Record<string, unknown> {
     ),
   );
   elevation.calls.length = 0;
+  windowsElevation.error = undefined;
+  windowsElevation.stderr = '';
+  windowsElevation.diagnostic = undefined;
+  windowsElevation.replacement = Buffer.from(elevation.replacement);
+  windowsElevation.calls.length = 0;
   return original;
 }
 
@@ -158,7 +217,26 @@ describe('product.json permission and race handling', () => {
     expect(result.changed).toBe(true);
     expect(result.elevated).toBe(true);
     expect(elevation.calls).toHaveLength(1);
-    expect(elevation.calls[0]).toContain('sha256sum');
+    expect(elevation.calls[0]).toContain('base64 -d');
+    expect(elevation.calls[0]).not.toMatch(/[$`"]/);
+  });
+
+  it('uses the direct PowerShell UAC launcher instead of sudo-prompt on Windows', async () => {
+    fileSystem.directWriteErrorCode = 'EACCES';
+    const result = await writeProductJsonProposals(
+      windowsEnvironment,
+      proposals,
+    );
+    expect(result).toMatchObject({ changed: true, elevated: true });
+    expect(elevation.calls).toHaveLength(0);
+    expect(windowsElevation.calls).toHaveLength(1);
+    expect(windowsElevation.calls[0]?.executable).toBe('powershell.exe');
+    expect(windowsElevation.calls[0]?.args.slice(0, 3)).toEqual([
+      '-NoProfile',
+      '-NonInteractive',
+      '-EncodedCommand',
+    ]);
+    expect(windowsElevation.calls[0]?.args[3]).toMatch(/^[A-Za-z0-9+/=]+$/);
   });
 
   it('treats administrator cancellation as a normal cancelled result', async () => {
@@ -189,10 +267,44 @@ describe('product.json permission and race handling', () => {
   it('maps an elevated hash mismatch exit to a concurrent change', async () => {
     fileSystem.directWriteErrorCode = 'EACCES';
     elevation.error = codedError('73');
-    Reflect.set(elevation.error, 'code', 73);
     await expect(
       writeProductJsonProposals(environment, proposals),
     ).rejects.toMatchObject({ code: 'concurrent-change' });
+  });
+
+  it('maps Windows UAC cancellation without relying on localized text', async () => {
+    fileSystem.directWriteErrorCode = 'EACCES';
+    windowsElevation.error = codedError('72', 'launcher failed');
+    await expect(
+      writeProductJsonProposals(windowsEnvironment, proposals),
+    ).rejects.toMatchObject({
+      code: 'cancelled',
+      targetPath: '/app/product.json',
+      exitCode: 72,
+    });
+  });
+
+  it('reports the Windows target, exit code, and elevated diagnostic', async () => {
+    fileSystem.directWriteErrorCode = 'EACCES';
+    windowsElevation.error = codedError('74', 'launcher failed');
+    windowsElevation.diagnostic =
+      'Copy-Item: Access to product.json was denied (EACCES).';
+    const operation = writeProductJsonProposals(
+      windowsEnvironment,
+      proposals,
+    );
+    await expect(operation).rejects.toMatchObject({
+      code: 'write-failed',
+      targetPath: '/app/product.json',
+      exitCode: 74,
+      stderr: 'Copy-Item: Access to product.json was denied (EACCES).',
+    });
+    await expect(operation).rejects.toThrow('/app/product.json');
+    expect(
+      [...fileSystem.files.keys()].some((path) =>
+        path.endsWith('.elevated-error.txt'),
+      ),
+    ).toBe(false);
   });
 
   it('exposes typed product errors for callers', () => {
