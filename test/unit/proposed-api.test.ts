@@ -457,6 +457,7 @@ describe('product.json Proposed API configuration', () => {
     expect(elevatedScript).toContain('exit 73');
     expect(elevatedScript).toContain('exit 74');
     expect(elevatedScript).not.toContain('{;');
+    expect(elevatedScript).toMatch(/\nexit 0$/);
     expect(() =>
       buildProductJsonElevatedCommand(
         environment,

@@ -470,6 +470,7 @@ function buildWindowsProductJsonScript(
     '} finally {',
     `Remove-Item -LiteralPath ${temporary} -Force -ErrorAction SilentlyContinue`,
     '}',
+    'exit 0',
   ].join('\n');
 }
 
