@@ -76,6 +76,13 @@ const ANTHROPIC_FABLE_5_REASONING_EFFORTS = [
   'medium',
   'low',
 ] as const;
+const ANTHROPIC_OPUS_5_REASONING_EFFORTS = [
+  'max',
+  'xhigh',
+  'high',
+  'medium',
+  'low',
+] as const;
 const ANTHROPIC_SONNET_5_REASONING_EFFORTS = [
   'xhigh',
   'high',
@@ -711,6 +718,31 @@ const _WELL_KNOWN_MODELS = [
       withThinkingSummaryAuto(
         anthropicAdaptiveReasoningEffort(
           ANTHROPIC_FABLE_5_REASONING_EFFORTS,
+          'high',
+        ),
+      ),
+    ],
+  },
+  {
+    id: 'claude-opus-5',
+    name: 'Claude Opus 5',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'auto',
+      effort: 'high',
+      summary: 'auto',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+      editTools: 'multi-find-replace',
+    },
+    presetTemplates: [
+      withThinkingSummaryAuto(
+        anthropicAdaptiveReasoningEffort(
+          ANTHROPIC_OPUS_5_REASONING_EFFORTS,
           'high',
         ),
       ),

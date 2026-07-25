@@ -941,6 +941,16 @@ export class AnthropicProvider implements ApiProvider {
     // Build betas array for beta API features
     const betaFeatures = new Set<string>();
 
+    if (
+      isFeatureSupported(
+        FeatureId.AnthropicMidConversationToolChanges,
+        this.config,
+        model,
+      )
+    ) {
+      betaFeatures.add('mid-conversation-tool-changes-2026-07-01');
+    }
+
     if (anthropicInterleavedThinkingEnabled) {
       betaFeatures.add('interleaved-thinking-2025-05-14');
     }
