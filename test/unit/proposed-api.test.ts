@@ -463,6 +463,10 @@ describe('product.json Proposed API configuration', () => {
     expect(elevatedScript).toContain('Copy-Item -LiteralPath');
     expect(elevatedScript).toContain("'C:\\Storage\\stage''s.json'");
     expect(elevatedScript).toContain(
+      '[System.Security.Cryptography.SHA256]::Create()',
+    );
+    expect(elevatedScript).not.toContain('Get-FileHash');
+    expect(elevatedScript).toContain(
       '[System.IO.File]::Replace(',
     );
     expect(elevatedScript).toContain('$null, $true)');
