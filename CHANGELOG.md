@@ -1,5 +1,24 @@
 # Changelog
 
+## v8.1.1 - 2026-07-25
+
+### Fixes
+- hash Windows targets without PowerShell modules (21a1539, SmallMain)
+- return success after elevated replacement (0941a04, SmallMain)
+- emit valid multiline PowerShell scripts (1552253, SmallMain)
+- harden proposed API product.json elevation (c4257ae, SmallMain)
+
+### Build/CI
+- annotate Windows test process failures (9ae946d, SmallMain)
+- target proposed API Windows regression (b08358c, SmallMain)
+- isolate Windows test phases (5287355, SmallMain)
+- expose Windows test failures (507c187, SmallMain)
+
+### Tests
+- report PowerShell replacement diagnostics (e8500ed, SmallMain)
+- match escaped Windows target paths (6fc3c15, SmallMain)
+- make product write fixtures portable (e1b1e6e, SmallMain)
+
 ## v8.1.0 - 2026-07-25
 
 ### Features
