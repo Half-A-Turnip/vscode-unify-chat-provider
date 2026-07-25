@@ -1,5 +1,10 @@
 # Changelog
 
+## v8.1.0 - 2026-07-25
+
+### Features
+- add Claude Opus 5 model and mid-conversation tool changes support (18482c7, SmallMain)
+
 ## v8.0.4 - 2026-07-23
 
 ### Features
