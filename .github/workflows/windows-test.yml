@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm test
+        run: npm run test:unit -- --reporter=default --reporter=github-actions
 
       - name: Build extension
         run: npm run compile
