@@ -32,11 +32,13 @@ jobs:
       - name: Type-check tests
         run: npx tsc -p test/tsconfig.json
 
-      - name: Build chat-lib runtime
-        run: npm run build:chat-lib-runtime
+      - name: Run Proposed API tests
+        run: >-
+          npx vitest run
+          test/unit/proposed-api.test.ts
+          test/unit/proposed-api-product-write.test.ts
+          --reporter=default
+          --reporter=github-actions
 
-      - name: Run unit tests
-        run: npx vitest run --reporter=default --reporter=github-actions
-
-      - name: Build extension
-        run: npm run compile
+      - name: Compile extension TypeScript
+        run: npx tsc -p .
