@@ -102,6 +102,18 @@ const proposals = [
 const temporaryDirectories: string[] = [];
 const execFileAsync = promisify(execFile);
 
+function getProcessErrorValue(error: unknown, key: string): unknown {
+  return typeof error === 'object' && error !== null
+    ? Reflect.get(error, key)
+    : undefined;
+}
+
+function getProcessErrorText(error: unknown, key: string): string | undefined {
+  const value = getProcessErrorValue(error, key);
+  if (typeof value === 'string') return value;
+  return Buffer.isBuffer(value) ? value.toString('utf8') : undefined;
+}
+
 async function createTemporaryDirectory(): Promise<string> {
   const directory = await mkdtemp(join(tmpdir(), 'ucp-proposed-api-'));
   temporaryDirectories.push(directory);
@@ -495,7 +507,35 @@ describe('product.json Proposed API configuration', () => {
       elevatedCommand,
     ];
 
-    await execFileAsync('powershell.exe', args);
+    try {
+      await execFileAsync('powershell.exe', args);
+    } catch (error) {
+      let diagnostic = '';
+      try {
+        diagnostic = await readFile(
+          `${sourcePath}.elevated-error.txt`,
+          'utf8',
+        );
+      } catch {
+        // The elevated script may fail before it can create diagnostics.
+      }
+      const currentTarget = await readFile(targetPath);
+      const exitCode = getProcessErrorValue(error, 'code');
+      const stderr = getProcessErrorText(error, 'stderr')?.trim();
+      const stdout = getProcessErrorText(error, 'stdout')?.trim();
+      throw new Error(
+        [
+          `PowerShell replacement failed with exit code ${String(exitCode)}.`,
+          `Target state: ${currentTarget.equals(replacement) ? 'replacement' : 'original-or-other'}.`,
+          diagnostic.trim() ? `Diagnostic: ${diagnostic.trim()}` : undefined,
+          stderr ? `stderr: ${stderr}` : undefined,
+          stdout ? `stdout: ${stdout}` : undefined,
+        ]
+          .filter((value): value is string => value !== undefined)
+          .join('\n')
+          .slice(0, 8_000),
+      );
+    }
     expect(await readFile(targetPath)).toEqual(replacement);
     await expect(execFileAsync('powershell.exe', args)).rejects.toMatchObject({
       code: 73,
