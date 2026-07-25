@@ -33,12 +33,21 @@ jobs:
         run: npx tsc -p test/tsconfig.json
 
       - name: Run Proposed API tests
-        run: >-
-          npx vitest run
-          test/unit/proposed-api.test.ts
-          test/unit/proposed-api-product-write.test.ts
-          --reporter=default
-          --reporter=github-actions
+        shell: pwsh
+        run: |
+          & npx vitest run `
+            test/unit/proposed-api.test.ts `
+            test/unit/proposed-api-product-write.test.ts `
+            --reporter=default `
+            --reporter=github-actions *> vitest-output.txt
+          $exitCode = $LASTEXITCODE
+          Get-Content vitest-output.txt
+          if ($exitCode -ne 0) {
+            $details = (Get-Content vitest-output.txt -Tail 100) -join "`n"
+            $escaped = $details.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Output "::error title=Windows Proposed API tests failed::$escaped"
+            exit $exitCode
+          }
 
       - name: Compile extension TypeScript
         run: npx tsc -p .
