@@ -191,13 +191,19 @@ export enum FeatureId {
    */
   AnthropicInterleavedThinking = 'anthropic_interleaved-thinking',
   /**
+   * Preserve prompt caches when tools are added or removed between turns.
+   *
+   * @see https://platform.claude.com/docs/en/about-claude/models/whats-new-opus-5#mid-conversation-tool-changes-beta
+   */
+  AnthropicMidConversationToolChanges = 'anthropic_mid-conversation-tool-changes',
+  /**
    * Adaptive thinking is always enabled and cannot be disabled.
    *
    * @see https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking
    */
   AnthropicAlwaysOnAdaptiveThinking = 'anthropic_always-on-adaptive-thinking',
   /**
-   * The `xhigh` effort level is currently documented for Claude Opus 4.7.
+   * The `xhigh` effort level is supported by recent Claude models.
    *
    * @see https://platform.claude.com/docs/en/build-with-claude/effort
    */
@@ -235,6 +241,7 @@ export enum FeatureId {
   /**
    * Use OpenRouter Claude adaptive thinking with top-level `verbosity`.
    *
+   * @see https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-6
    * @see https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-7
    */
   OpenRouterUseClaudeAdaptiveVerbosity = 'openrouter_use-claude-adaptive-verbosity',
@@ -419,6 +426,9 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'claude-opus-4',
     ],
   },
+  [FeatureId.AnthropicMidConversationToolChanges]: {
+    supportedFamilys: ['claude-opus-5'],
+  },
   [FeatureId.AnthropicAlwaysOnAdaptiveThinking]: {
     supportedFamilys: [
       'claude-fable-5',
@@ -428,6 +438,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
   },
   [FeatureId.AnthropicXHighEffort]: {
     supportedFamilys: [
+      'claude-opus-5',
       'claude-sonnet-5',
       'claude-opus-4-8',
       'claude-opus-4.8',
@@ -537,6 +548,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
       (model, provider) =>
         matchProvider(provider.baseUrl, 'openrouter.ai') &&
         [
+          'claude-opus-5',
           'claude-opus-4-8',
           'claude-opus-4.8',
           'claude-4-8-opus',

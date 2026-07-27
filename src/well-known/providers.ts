@@ -92,6 +92,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     models: [
       'claude-fable-5',
       'claude-mythos-5',
+      'claude-opus-5',
       'claude-sonnet-5',
       'claude-opus-4-8',
       'claude-opus-4-7',
@@ -799,6 +800,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     models: [
       'claude-fable-5',
       'claude-mythos-5',
+      'claude-opus-5',
       'claude-sonnet-5',
       'claude-opus-4-8',
       'claude-opus-4-7',
