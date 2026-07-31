@@ -1,5 +1,13 @@
 # Changelog
 
+## v8.1.2 - 2026-07-31
+
+### Fixes
+- openai-responses: tolerate missing input token details (834a9df, nicezic)
+
+### Build/CI
+- remove temporary Windows test workflow (85368a3, SmallMain)
+
 ## v8.1.1 - 2026-07-25
 
 ### Fixes
