@@ -125,6 +125,7 @@ const MISTRAL_REASONING_EFFORTS = [
   'minimal',
   'none',
 ] as const;
+const QWEN_3_8_REASONING_EFFORTS = ['xhigh', 'medium', 'low'] as const;
 
 function doubaoReasoningEffort(
   defaultEffort: (typeof DOUBAO_REASONING_EFFORTS)[number] | 'auto',
@@ -2953,6 +2954,28 @@ const _WELL_KNOWN_MODELS = [
       imageInput: false,
     },
     temperature: 0.6,
+  },
+  {
+    id: 'qwen3.8-max',
+    name: 'Qwen3.8-Max',
+    maxInputTokens: 983616,
+    maxOutputTokens: 131072,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'xhigh',
+    },
+    parallelToolCalling: false,
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      reasoningEffort({
+        supported: QWEN_3_8_REASONING_EFFORTS,
+        default: 'xhigh',
+      }),
+    ],
   },
   {
     id: 'qwen3.7-max',

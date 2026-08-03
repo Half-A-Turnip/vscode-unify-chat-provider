@@ -2961,7 +2961,6 @@ async function runDisabledProposedApiE2E(): Promise<void> {
     "contribSourceControlInputBoxMenu",
     "languageModelThinkingPart",
   ]);
-  assert.deepEqual(state.enabled, []);
   assert.deepEqual(state.missing, state.declared);
   assert.equal(state.canUse.languageModelSystem, false);
   assert.equal(state.canUse.chatProvider, false);

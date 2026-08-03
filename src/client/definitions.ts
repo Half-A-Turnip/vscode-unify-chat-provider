@@ -175,6 +175,24 @@ function isKimiK3Model(model: { id: string; family?: string }): boolean {
   return modelIdentityIncludes(model, 'kimi-k3');
 }
 
+function isQwen38ModelStudioEndpoint(
+  model: { id: string; family?: string },
+  provider: { baseUrl: string },
+): boolean {
+  const isQwen38Max = [model.family, getBaseModelId(model.id)].some(
+    (value) => value?.toLowerCase() === 'qwen3.8-max',
+  );
+  return (
+    isQwen38Max &&
+    [
+      'dashscope.aliyuncs.com',
+      'dashscope-intl.aliyuncs.com',
+      'dashscope-us.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+    ].some((host) => matchProvider(provider.baseUrl, host))
+  );
+}
+
 export enum FeatureId {
   /**
    * @see https://www.volcengine.com/docs/82379/1569618?lang=zh
@@ -638,6 +656,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'api.synthetic.new',
     ],
     customCheckers: [
+      isQwen38ModelStudioEndpoint,
       (model, provider) =>
         isMoonshotOpenAIProvider(provider) && isKimiK3Model(model),
       (model, provider) =>
@@ -701,6 +720,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'vanchin.streamlake.ai',
     ],
     customCheckers: [
+      isQwen38ModelStudioEndpoint,
       (model, provider) =>
         isBaiduQianfanModel(model, provider, [
           'qwen3-235b-a22b',
@@ -775,6 +795,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'qianfan.baidubce.com',
       'integrate.api.nvidia.com',
     ],
+    customCheckers: [isQwen38ModelStudioEndpoint],
   },
   [FeatureId.OpenAIUseClearThinking]: {
     supportedProviders: ['open.bigmodel.cn', 'api.z.ai'],
