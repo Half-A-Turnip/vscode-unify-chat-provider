@@ -287,7 +287,12 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     authTypes: ['api-key'],
-    models: ['qwen3.7-max', 'qwen3.7-plus', 'qwen3.6-flash'],
+    models: [
+      'qwen3.8-max',
+      'qwen3.7-max',
+      'qwen3.7-plus',
+      'qwen3.6-flash',
+    ],
   },
   {
     name: 'Alibaba Cloud Model Studio (Team Token Plan)',
@@ -316,7 +321,12 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
     authTypes: ['api-key'],
-    models: ['qwen3.7-max', 'qwen3.7-plus', 'qwen3.6-flash'],
+    models: [
+      'qwen3.8-max',
+      'qwen3.7-max',
+      'qwen3.7-plus',
+      'qwen3.6-flash',
+    ],
   },
   {
     name: 'Tencent Cloud TokenHub (China)',
