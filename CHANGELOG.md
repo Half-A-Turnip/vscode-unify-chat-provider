@@ -1,5 +1,9 @@
 # Changelog
 
+## v8.2.0 - 2026-08-03
+
+- No changes recorded.
+
 ## v8.1.2 - 2026-07-31
 
 ### Fixes
