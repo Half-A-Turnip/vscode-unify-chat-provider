@@ -1,5 +1,16 @@
 # Changelog
 
+## v8.3.0 - 2026-08-03
+
+### Features
+- add Qwen3.8-Max model with native reasoning effort support (fcde6bd, SmallMain)
+
+### Fixes
+- release: make publishing atomic and resumable (78b6478, SmallMain)
+
+### Build/CI
+- update release workflow actions (c0efab0, SmallMain)
+
 ## v8.2.0 - 2026-08-03
 
 - No changes recorded.
