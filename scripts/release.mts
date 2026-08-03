@@ -51,7 +51,8 @@ type Section = {
 
 const MARKETPLACE_PUBLISH_ATTEMPTS = 8;
 const GITHUB_MUTATION_ATTEMPTS = 8;
-const POST_PUBLISH_RECONCILIATION_ATTEMPTS = 8;
+const MARKETPLACE_RECONCILIATION_ATTEMPTS = 35;
+const GITHUB_RECONCILIATION_ATTEMPTS = 12;
 
 class NonRetryableReleaseError extends Error {}
 
@@ -1309,7 +1310,7 @@ async function publishToMarketplace(params: {
   );
 
   await retry(
-    POST_PUBLISH_RECONCILIATION_ATTEMPTS,
+    MARKETPLACE_RECONCILIATION_ATTEMPTS,
     async () => {
       const state = await getMarketplaceVersionState({
         repoRoot: params.repoRoot,
@@ -1329,7 +1330,7 @@ async function publishToMarketplace(params: {
     },
     (attempt, error) => {
       console.warn(
-        `VS Code Marketplace post-publish reconciliation failed (attempt ${attempt}/${POST_PUBLISH_RECONCILIATION_ATTEMPTS}): ${formatError(error)}`,
+        `VS Code Marketplace post-publish reconciliation failed (attempt ${attempt}/${MARKETPLACE_RECONCILIATION_ATTEMPTS}): ${formatError(error)}`,
       );
     },
   );
@@ -2142,7 +2143,7 @@ async function reconcileGitHubPublication(params: {
   skipUpload: boolean;
 }): Promise<void> {
   await retry(
-    POST_PUBLISH_RECONCILIATION_ATTEMPTS,
+    GITHUB_RECONCILIATION_ATTEMPTS,
     async () => {
       const metadata = await getGitHubReleaseMetadataOrNull(
         params.repoRoot,
@@ -2177,7 +2178,7 @@ async function reconcileGitHubPublication(params: {
     },
     (attempt, error) => {
       console.warn(
-        `GitHub Release post-publish reconciliation failed (attempt ${attempt}/${POST_PUBLISH_RECONCILIATION_ATTEMPTS}): ${formatError(error)}`,
+        `GitHub Release post-publish reconciliation failed (attempt ${attempt}/${GITHUB_RECONCILIATION_ATTEMPTS}): ${formatError(error)}`,
       );
     },
   );
