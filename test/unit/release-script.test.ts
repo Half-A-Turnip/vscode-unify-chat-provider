@@ -100,6 +100,7 @@ describe('release script coordination', () => {
           RELEASE_TEST_MARKETPLACE_STATE: marketplaceState,
           RELEASE_TEST_GITHUB_STATE: githubState,
           RELEASE_TEST_AMBIGUOUS_RESPONSES: 'true',
+          RELEASE_TEST_DELAYED_MARKETPLACE_VISIBILITY: 'true',
         },
       );
 
@@ -115,13 +116,13 @@ describe('release script coordination', () => {
         'Release reconciliation succeeded for v1.1.0',
       );
       expect(result.stdout).toContain(
-        'despite an ambiguous client response',
-      );
-      expect(result.stdout).toContain(
         'despite an ambiguous create response',
       );
       expect(result.stdout).toContain(
         'despite an ambiguous upload response',
+      );
+      expect(`${result.stderr}\n${result.stdout}`).toContain(
+        'switching to read-only reconciliation',
       );
 
       const remoteTag = run(
@@ -287,6 +288,15 @@ const args = process.argv.slice(2);
 fs.appendFileSync(process.env.RELEASE_TEST_CALL_LOG, JSON.stringify({ tool: 'vsce', args }) + '\\n');
 if (args[0] === 'show') {
   const state = process.env.RELEASE_TEST_MARKETPLACE_STATE;
+  const pendingState = state ? state + '.pending' : '';
+  if (pendingState && fs.existsSync(pendingState)) {
+    const visibilityMarker = pendingState + '.queried';
+    if (fs.existsSync(visibilityMarker)) {
+      fs.renameSync(pendingState, state);
+    } else {
+      fs.writeFileSync(visibilityMarker, 'queried');
+    }
+  }
   if (state && fs.existsSync(state)) {
     process.stdout.write(fs.readFileSync(state, 'utf8'));
     process.exit(0);
@@ -311,14 +321,21 @@ if (args[0] === 'publish') {
   const state = process.env.RELEASE_TEST_MARKETPLACE_STATE;
   if (state) {
     const sha256 = crypto.createHash('sha256').update(fs.readFileSync(asset)).digest('hex');
-    fs.writeFileSync(state, JSON.stringify({
+    const metadata = JSON.stringify({
       publisher: { publisherName: 'TestPublisher' },
       extensionName: 'test-extension',
       versions: [{
         version: '1.1.0',
         properties: [{ key: 'Microsoft.VisualStudio.Services.VsixSha256', value: sha256 }],
       }],
-    }));
+    });
+    const outputState = process.env.RELEASE_TEST_DELAYED_MARKETPLACE_VISIBILITY
+      ? state + '.pending'
+      : state;
+    fs.writeFileSync(outputState, metadata);
+    if (process.env.RELEASE_TEST_DELAYED_MARKETPLACE_VISIBILITY) {
+      process.stderr.write('version already exists\\n');
+    }
   }
   process.exit(process.env.RELEASE_TEST_AMBIGUOUS_RESPONSES ? 1 : 0);
 }

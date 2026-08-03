@@ -1288,9 +1288,10 @@ async function publishToMarketplace(params: {
         return;
       }
       if (isMarketplaceAlreadyPublishedError(output)) {
-        throw new Error(
-          `VS Code Marketplace reports ${params.extensionId}@${params.version} already exists, but its metadata is not visible yet.`,
+        console.warn(
+          `VS Code Marketplace reports ${params.extensionId}@${params.version} already exists, but its metadata is not visible yet; switching to read-only reconciliation.`,
         );
+        return;
       }
 
       throw new Error(
