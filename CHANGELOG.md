@@ -1,5 +1,14 @@
 # Changelog
 
+## v8.4.0 - 2026-08-13
+
+### Features
+- add Grok 4.6 model with xhigh reasoning effort support (44dbb29, SmallMain)
+
+### Fixes
+- release: reconcile delayed marketplace versions (19be080, SmallMain)
+- release: wait for marketplace propagation (114592b, SmallMain)
+
 ## v8.3.0 - 2026-08-03
 
 ### Features
