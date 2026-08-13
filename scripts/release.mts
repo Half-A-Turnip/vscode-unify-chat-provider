@@ -51,7 +51,8 @@ type Section = {
 
 const MARKETPLACE_PUBLISH_ATTEMPTS = 8;
 const GITHUB_MUTATION_ATTEMPTS = 8;
-const MARKETPLACE_RECONCILIATION_ATTEMPTS = 35;
+// Marketplace indexing can lag behind a successful publish by more than 10 minutes.
+const MARKETPLACE_RECONCILIATION_ATTEMPTS = 50;
 const GITHUB_RECONCILIATION_ATTEMPTS = 12;
 
 class NonRetryableReleaseError extends Error {}
