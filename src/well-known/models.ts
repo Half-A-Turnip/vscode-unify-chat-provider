@@ -114,6 +114,7 @@ const GEMINI_2_5_FLASH_REASONING_BUDGETS = {
   medium: 8192,
   low: 1024,
 } as const;
+const GROK_4_6_REASONING_EFFORTS = ['xhigh', 'high', 'medium', 'low'] as const;
 const GROK_4_5_REASONING_EFFORTS = ['high', 'medium', 'low'] as const;
 const GROK_4_3_REASONING_EFFORTS = ['high', 'medium', 'low', 'none'] as const;
 const INCEPTION_REASONING_EFFORTS = ['high', 'medium', 'low'] as const;
@@ -4706,8 +4707,30 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'grok-4.6',
+    overrides: ['grok-4.6-latest'],
+    name: 'Grok 4.6',
+    maxInputTokens: 500000,
+    maxOutputTokens: 65536,
+    stream: true,
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    thinking: {
+      type: 'enabled',
+      effort: 'xhigh',
+    },
+    presetTemplates: [
+      reasoningEffort({
+        supported: GROK_4_6_REASONING_EFFORTS,
+        default: 'xhigh',
+      }),
+    ],
+  },
+  {
     id: 'grok-4.5',
-    overrides: ['grok-4.5-latest', 'grok-build-latest'],
+    overrides: ['grok-4.5-latest'],
     name: 'Grok 4.5',
     maxInputTokens: 500000,
     maxOutputTokens: 65536,
