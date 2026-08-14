@@ -4905,6 +4905,25 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'gemini-3.7-flash',
+    overrides: ['models/gemini-3.7-flash'],
+    name: 'Gemini 3.7 Flash',
+    maxInputTokens: 1048576,
+    maxOutputTokens: 65535,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'medium',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      geminiReasoningEffort(GEMINI_3_FLASH_REASONING_EFFORTS, 'medium'),
+    ],
+  },
+  {
     id: 'gemini-3.6-flash',
     overrides: ['models/gemini-3.6-flash'],
     name: 'Gemini 3.6 Flash',
