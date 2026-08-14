@@ -1,5 +1,11 @@
 # Changelog
 
+## v8.4.1 - 2026-08-13
+
+### Fixes
+- add low reasoning effort option for DeepSeek V4 model (f19d2ef, SmallMain)
+- release: extend marketplace reconciliation window (b30d22a, SmallMain)
+
 ## v8.4.0 - 2026-08-13
 
 ### Features
