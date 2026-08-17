@@ -4244,8 +4244,27 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'glm-5.3',
+    overrides: ["z-ai/glm-5.3"],
+    name: 'GLM-5.3',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: false,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(GLM_5_2_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
     id: 'glm-5.2',
-    overrides:["z-ai/glm-5.2"],
+    overrides: ["z-ai/glm-5.2"],
     name: 'GLM-5.2',
     maxInputTokens: 1000000,
     maxOutputTokens: 128000,
@@ -4903,6 +4922,25 @@ const _WELL_KNOWN_MODELS = [
       toolCalling: true,
       imageInput: true,
     },
+  },
+  {
+    id: 'gemini-3.7-flash',
+    overrides: ['models/gemini-3.7-flash'],
+    name: 'Gemini 3.7 Flash',
+    maxInputTokens: 1048576,
+    maxOutputTokens: 65535,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'medium',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      geminiReasoningEffort(GEMINI_3_FLASH_REASONING_EFFORTS, 'medium'),
+    ],
   },
   {
     id: 'gemini-3.6-flash',

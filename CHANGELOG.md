@@ -1,5 +1,10 @@
 # Changelog
 
+## v8.5.0 - 2026-08-14
+
+### Features
+- add Gemini 3.7 Flash model with docs update (b93238d, SmallMain)
+
 ## v8.4.1 - 2026-08-13
 
 ### Fixes
