@@ -1,5 +1,10 @@
 # Changelog
 
+## v8.6.0 - 2026-08-20
+
+### Features
+- add GLM-5.3 model and update ZhiPu AI provider model lists (fd8b741, SmallMain)
+
 ## v8.5.0 - 2026-08-14
 
 ### Features
