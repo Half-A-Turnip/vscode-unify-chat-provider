@@ -2365,6 +2365,34 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'deepseek-v4-flash-vision-exp',
+    overrides: [
+      {
+        matchers: ['integrate.api.nvidia.com'],
+        config: {
+          id: 'deepseek-ai/deepseek-v4-flash-vision-exp',
+          maxOutputTokens: 262144,
+        },
+      },
+    ],
+    name: 'DeepSeek V4 Flash Vision Exp',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 65536,
+    stream: true,
+    tokenizer: 'deepseek',
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(DEEPSEEK_V4_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
     id: 'deepseek-v4-flash',
     overrides: [
       {
