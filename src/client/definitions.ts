@@ -165,6 +165,83 @@ function modelIdentityIncludes(
   );
 }
 
+const GLM_5_3_MODEL_IDENTITIES = new Set([
+  'glm-5.3',
+  'z-ai/glm-5.3',
+  'glm-5.3-flash',
+  'z-ai/glm-5.3-flash',
+]);
+const GLM_5_3_PROVIDER_ENDPOINTS = new Set([
+  'https://open.bigmodel.cn/api/paas/v4',
+  'https://open.bigmodel.cn/api/coding/paas/v4',
+  'https://api.z.ai/api/paas/v4',
+  'https://api.z.ai/api/coding/paas/v4',
+]);
+const QWEN_3_8_MODEL_IDENTITIES = new Set([
+  'qwen3.8-max',
+  'qwen3.8-flash',
+  'qwen3.8-flash-next',
+  'qwen3.8-27b',
+]);
+const QWEN_CLOUD_OPENAI_ENDPOINTS = new Set([
+  'https://dashscope.aliyuncs.com/compatible-mode/v1',
+  'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+  'https://dashscope-us.aliyuncs.com/compatible-mode/v1',
+  'https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1',
+  'https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1',
+]);
+
+function isExactOpenAIChatCompletionEndpoint(
+  provider: { type: ProviderType; baseUrl: string },
+  endpoints: ReadonlySet<string>,
+): boolean {
+  if (provider.type !== 'openai-chat-completion') {
+    return false;
+  }
+
+  try {
+    const url = new URL(provider.baseUrl);
+    if (
+      url.username !== '' ||
+      url.password !== '' ||
+      url.search !== '' ||
+      url.hash !== ''
+    ) {
+      return false;
+    }
+    const pathname = url.pathname.replace(/\/+$/, '');
+    return endpoints.has(`${url.origin}${pathname}`);
+  } catch {
+    return false;
+  }
+}
+
+function isGlm53Model(model: { id: string; family?: string }): boolean {
+  const baseId = getBaseModelId(model.id).trim().toLowerCase();
+  const family = model.family?.trim().toLowerCase();
+  return (
+    GLM_5_3_MODEL_IDENTITIES.has(baseId) ||
+    (family !== undefined && GLM_5_3_MODEL_IDENTITIES.has(family))
+  );
+}
+
+function isOfficialGlm53Provider(provider: {
+  type: ProviderType;
+  baseUrl: string;
+}): boolean {
+  return isExactOpenAIChatCompletionEndpoint(
+    provider,
+    GLM_5_3_PROVIDER_ENDPOINTS,
+  );
+}
+
+function isOfficialGlm53Request(
+  model: { id: string; family?: string },
+  provider: { type: ProviderType; baseUrl: string },
+): boolean {
+  return isGlm53Model(model) && isOfficialGlm53Provider(provider);
+}
+
 function isMoonshotOpenAIProvider(provider: { baseUrl: string }): boolean {
   return ['api.moonshot.cn', 'api.moonshot.ai'].some((pattern) =>
     matchProvider(provider.baseUrl, pattern),
@@ -177,19 +254,16 @@ function isKimiK3Model(model: { id: string; family?: string }): boolean {
 
 function isQwen38ModelStudioEndpoint(
   model: { id: string; family?: string },
-  provider: { baseUrl: string },
+  provider: { type: ProviderType; baseUrl: string },
 ): boolean {
-  const isQwen38Max = [model.family, getBaseModelId(model.id)].some(
-    (value) => value?.toLowerCase() === 'qwen3.8-max',
+  const isQwen38 = [model.family, getBaseModelId(model.id)].some(
+    (value) =>
+      value !== undefined &&
+      QWEN_3_8_MODEL_IDENTITIES.has(value.trim().toLowerCase()),
   );
   return (
-    isQwen38Max &&
-    [
-      'dashscope.aliyuncs.com',
-      'dashscope-intl.aliyuncs.com',
-      'dashscope-us.aliyuncs.com',
-      'token-plan.cn-beijing.maas.aliyuncs.com',
-    ].some((host) => matchProvider(provider.baseUrl, host))
+    isQwen38 &&
+    isExactOpenAIChatCompletionEndpoint(provider, QWEN_CLOUD_OPENAI_ENDPOINTS)
   );
 }
 
@@ -285,6 +359,13 @@ export enum FeatureId {
    * @see https://api-docs.deepseek.com/zh-cn/
    */
   OpenAIUseDeepSeekReasoningEffortParam = 'openai_use-deepseek-reasoning-effort-param',
+  /**
+   * GLM-5.3 always reasons and accepts `low`, `high`, or `max` as its
+   * `reasoning_effort` value.
+   *
+   * @see https://docs.z.ai/guides/vlm/glm-5.3-flash
+   */
+  OpenAIUseGlm53ReasoningEffortParam = 'openai_use-glm-5.3-reasoning-effort-param',
   /**
    * Using both the unofficial `thinking` and the `reasoning` fields in the OpenAI Responses API.
    *
@@ -669,6 +750,9 @@ export const FEATURES: Record<FeatureId, Feature> = {
       (model) => modelFamilyIncludes(model, 'deepseek-v4'),
     ],
   },
+  [FeatureId.OpenAIUseGlm53ReasoningEffortParam]: {
+    customCheckers: [isOfficialGlm53Request],
+  },
   [FeatureId.OpenAIStripIncludeParam]: {
     supportedProviders: [
       'ark.cn-beijing.volces.com',
@@ -697,6 +781,8 @@ export const FEATURES: Record<FeatureId, Feature> = {
     supportedProviders: [
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.synthetic.new',
     ],
@@ -705,6 +791,8 @@ export const FEATURES: Record<FeatureId, Feature> = {
     supportedProviders: [
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
     ],
   },
@@ -712,6 +800,8 @@ export const FEATURES: Record<FeatureId, Feature> = {
     supportedProviders: [
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.siliconflow.cn',
       'api.siliconflow.com',
@@ -740,8 +830,10 @@ export const FEATURES: Record<FeatureId, Feature> = {
   },
   [FeatureId.OpenAIUseThinkingBudgetParam]: {
     supportedProviders: [
+      'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
-      'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.siliconflow.cn',
       'api.siliconflow.com',
@@ -785,8 +877,10 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'api.moonshot.ai',
       'opencode.ai',
       'api.kimi.com',
+      'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
-      'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.siliconflow.cn',
       'api.siliconflow.com',

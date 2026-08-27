@@ -191,9 +191,19 @@ describe('Qwen3.8-Max catalog support', () => {
     expect(getFeatureBlock(source, 'OpenAIUseReasoningContent')).toContain(
       'isQwen38ModelStudioEndpoint',
     );
-    expect(source).toContain("value?.toLowerCase() === 'qwen3.8-max'");
-    expect(source).toContain("'dashscope.aliyuncs.com'");
-    expect(source).toContain("'dashscope-intl.aliyuncs.com'");
+    expect(source).toContain("'qwen3.8-max'");
+    expect(source).toContain("'qwen3.8-flash'");
+    expect(source).toContain("'qwen3.8-flash-next'");
+    expect(source).toContain("'qwen3.8-27b'");
+    expect(source).toContain(
+      "'https://dashscope.aliyuncs.com/compatible-mode/v1'",
+    );
+    expect(source).toContain(
+      "'https://dashscope-intl.aliyuncs.com/compatible-mode/v1'",
+    );
+    expect(source).toContain(
+      "'https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1'",
+    );
   });
 
   it.each([
