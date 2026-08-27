@@ -638,7 +638,10 @@
                   "ollama",
                   "claude-code",
                   "zed",
-                  "command-code"
+                  "command-code",
+                  "opencode-zen",
+                  "opencode-go",
+                  "openrouter"
                 ],
                 "enumDescriptions": [
                   "%configuration.endpoints.type.enumDescriptions.0%",
@@ -654,7 +657,10 @@
                   "%configuration.endpoints.type.enumDescriptions.5%",
                   "%configuration.endpoints.type.enumDescriptions.9%",
                   "%configuration.endpoints.type.enumDescriptions.12%",
-                  "%configuration.endpoints.type.enumDescriptions.13%"
+                  "%configuration.endpoints.type.enumDescriptions.13%",
+                  "%configuration.endpoints.type.enumDescriptions.14%",
+                  "%configuration.endpoints.type.enumDescriptions.15%",
+                  "%configuration.endpoints.type.enumDescriptions.16%"
                 ]
               },
               "name": {

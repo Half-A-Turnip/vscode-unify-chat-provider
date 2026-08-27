@@ -39,6 +39,9 @@ vi.mock('../../src/main-instance/index', () => ({
 vi.mock('../../src/client/definitions', () => ({
   PROVIDER_TYPES: {
     'command-code': {},
+    'opencode-go': {},
+    'opencode-zen': {},
+    openrouter: {},
     'openai-chat-completion': {},
     zed: {},
   },
@@ -412,8 +415,56 @@ describe('main-instance completion configuration sync', () => {
     });
   });
 
-  it('uses compatibility version 9 without changing protocol version 1', () => {
-    expect(MAIN_INSTANCE_COMPATIBILITY_VERSION).toBe(9);
+  it.each([
+    ['opencode-zen', 'OpenCode Zen', 'https://opencode.ai/zen/v1'],
+    ['opencode-go', 'OpenCode Go', 'https://opencode.ai/zen/go/v1'],
+  ] as const)(
+    'round-trips the composite %s provider contract',
+    (type, name, baseUrl) => {
+      const provider = parseProviderConfig(
+        {
+          type,
+          name,
+          baseUrl,
+          transport: 'sse',
+          extraBody: { shared_provider_option: true },
+          models: [{ id: 'future-model' }],
+        },
+        METHOD,
+      );
+
+      expect(provider).toMatchObject({
+        type,
+        name,
+        baseUrl,
+        transport: 'sse',
+        extraBody: { shared_provider_option: true },
+        models: [{ id: 'future-model' }],
+      });
+    },
+  );
+
+  it('round-trips the OpenRouter provider contract', () => {
+    const provider = parseProviderConfig(
+      {
+        type: 'openrouter',
+        name: 'OpenRouter',
+        baseUrl: 'https://openrouter.ai/api/v1',
+        models: [{ id: 'minimax/minimax-m3:free' }],
+      },
+      METHOD,
+    );
+
+    expect(provider).toMatchObject({
+      type: 'openrouter',
+      name: 'OpenRouter',
+      baseUrl: 'https://openrouter.ai/api/v1',
+      models: [{ id: 'minimax/minimax-m3:free' }],
+    });
+  });
+
+  it('uses compatibility version 10 without changing protocol version 1', () => {
+    expect(MAIN_INSTANCE_COMPATIBILITY_VERSION).toBe(10);
     expect(PROTOCOL_VERSION).toBe(1);
   });
 

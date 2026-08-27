@@ -53,6 +53,7 @@ describe('native Completion API Provider registry', () => {
     expect(nativeCompletionApiProviderRegistry.listProviderTypes()).toEqual([
       'openai-chat-completion',
       'openai-responses',
+      'openrouter',
       'ollama',
       'zed',
     ]);
@@ -88,6 +89,18 @@ describe('native Completion API Provider registry', () => {
       nativeCompletionApiProviderRegistry.listProviderTypes(),
     ).not.toContain('command-code');
   });
+
+  it.each(['opencode-zen', 'opencode-go'] as const)(
+    'does not treat %s as a single-protocol Completions provider',
+    (providerType) => {
+      expect(
+        nativeCompletionApiProviderRegistry.create(context([], providerType)),
+      ).toBeUndefined();
+      expect(
+        nativeCompletionApiProviderRegistry.listProviderTypes(),
+      ).not.toContain(providerType);
+    },
+  );
 
   it('rejects duplicate and empty registrations at startup', () => {
     expect(

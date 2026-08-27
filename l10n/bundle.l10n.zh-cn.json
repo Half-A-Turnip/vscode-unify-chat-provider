@@ -331,12 +331,6 @@
   "Cerebras": "Cerebras",
   "Command Code": "Command Code",
   "Official API with automatic model synchronization": "支持自动同步模型的官方 API",
-  "OpenCode Zen (OpenAI Chat Completion)": "OpenCode Zen (OpenAI Chat Completion)",
-  "OpenCode Zen (OpenAI Responses)": "OpenCode Zen (OpenAI Responses)",
-  "OpenCode Zen (Anthropic Messages)": "OpenCode Zen (Anthropic Messages)",
-  "OpenCode Zen (Gemini)": "OpenCode Zen (Gemini)",
-  "OpenCode Go (OpenAI Chat Completion)": "OpenCode Go (OpenAI Chat Completion)",
-  "OpenCode Go (Anthropic Messages)": "OpenCode Go (Anthropic Messages)",
   "Alibaba Cloud Model Studio (China)": "阿里云百炼平台 (中国站)",
   "Alibaba Cloud Model Studio (Team Token Plan)": "阿里云百炼平台 (Team Token Plan)",
   "Alibaba Cloud Model Studio (International)": "阿里云百炼平台 (国际站)",
@@ -1345,5 +1339,8 @@
   "Monitor budget via LiteLLM key info API": "通过 LiteLLM Key 信息 API 监控预算",
   "No budget limit configured": "未配置预算上限",
   "Spent": "已支出",
-  "Atlas Cloud": "Atlas Cloud"
+  "Atlas Cloud": "Atlas Cloud",
+  "Official API with automatic model endpoint routing": "支持按模型自动路由端点的官方 API",
+  "OpenCode Go": "OpenCode Go",
+  "OpenCode Zen": "OpenCode Zen"
 }

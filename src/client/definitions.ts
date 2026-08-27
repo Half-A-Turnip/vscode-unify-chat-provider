@@ -12,9 +12,14 @@ import { OllamaProvider } from './ollama/client';
 import { OpenAIChatCompletionProvider } from './openai/chat-completion-client';
 import { OpenAICodexProvider } from './openai/codex-client';
 import { OpenAIResponsesProvider } from './openai/responses-client';
+import { OpenRouterProvider } from './openrouter/client';
 import { XaiGrokBuildProvider } from './xai/grok-build-client';
 import { ZedProvider } from './zed/provider';
 import { CommandCodeProvider } from './command-code/provider';
+import {
+  OpenCodeGoProvider,
+  OpenCodeZenProvider,
+} from './opencode/provider';
 import { Feature } from './types';
 import { matchProvider, matchModelFamily } from './utils';
 
@@ -27,6 +32,9 @@ export type ProviderType =
   | 'google-gemini-cli'
   | 'github-copilot'
   | 'command-code'
+  | 'opencode-zen'
+  | 'opencode-go'
+  | 'openrouter'
   | 'zed'
   | 'openai-chat-completion'
   | 'openai-codex'
@@ -49,6 +57,27 @@ export const PROVIDER_TYPES: Record<ProviderType, ProviderDefinition> = {
     description: t('Official API with automatic model synchronization'),
     category: 'General',
     class: CommandCodeProvider,
+  },
+  'opencode-zen': {
+    type: 'opencode-zen',
+    label: t('OpenCode Zen'),
+    description: t('Official API with automatic model endpoint routing'),
+    category: 'General',
+    class: OpenCodeZenProvider,
+  },
+  'opencode-go': {
+    type: 'opencode-go',
+    label: t('OpenCode Go'),
+    description: t('Official API with automatic model endpoint routing'),
+    category: 'General',
+    class: OpenCodeGoProvider,
+  },
+  openrouter: {
+    type: 'openrouter',
+    label: t('OpenRouter'),
+    description: '/api/v1/chat/completions',
+    category: 'General',
+    class: OpenRouterProvider,
   },
   'google-ai-studio': {
     type: 'google-ai-studio',
