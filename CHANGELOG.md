@@ -1,5 +1,10 @@
 # Changelog
 
+## v8.8.0 - 2026-08-27
+
+### Fixes
+- openai: nest Z.AI clear thinking parameter (a6db5ba, SmallMain)
+
 ## v8.7.0 - 2026-08-27
 
 ### Features
