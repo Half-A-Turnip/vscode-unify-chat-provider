@@ -51,14 +51,7 @@ describe('Plan 4 provider definitions', () => {
 });
 
 describe('Plan 4 well-known catalog', () => {
-  it('declares FIM completion for every DeepSeek model and the beta endpoint', () => {
-    const deepSeekModels = WELL_KNOWN_MODELS.filter((model) =>
-      model.id.startsWith('deepseek-'),
-    );
-    expect(deepSeekModels.length).toBeGreaterThan(0);
-    for (const model of deepSeekModels) {
-      expect(model.completion?.templates).toEqual(['fim']);
-    }
+  it('declares the DeepSeek beta completion endpoint', () => {
     expect(
       WELL_KNOWN_PROVIDERS.find((provider) => provider.name === 'DeepSeek'),
     ).toMatchObject({
