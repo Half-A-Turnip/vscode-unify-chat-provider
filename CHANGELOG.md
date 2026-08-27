@@ -1,5 +1,14 @@
 # Changelog
 
+## v8.9.0 - 2026-08-27
+
+### Features
+- add OpenCode Zen/Go auto-routing and OpenRouter provider integration (71f9d37, SmallMain)
+- add Command Code provider (7f2c266, SmallMain)
+
+### Other
+- Add Atlas Cloud well-known provider (9e61862, nb213)
+
 ## v8.8.0 - 2026-08-27
 
 ### Fixes
