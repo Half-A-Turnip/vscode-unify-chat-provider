@@ -96,6 +96,7 @@ import {
  * - `openrouter_claude_adaptive_verbosity` — OpenRouter Claude adaptive thinking + top-level `verbosity`
  * - `thinking`                     — DeepSeek / MiMo / GLM `thinking: { type }` param
  * - `thinking_with_high_max_reasoning_effort` — GLM / DeepSeek V4 `thinking` + `reasoning_effort` (`high` / `max`)
+ * - `forced_thinking_with_reasoning_effort` — GLM-5.3 forced thinking + `reasoning_effort`
  * - `thinking_with_reasoning_effort` — VolcEngine `thinking` + `reasoning_effort`
  * - `disable_reasoning`            — Cerebras GLM `disable_reasoning` boolean
  * - `enable_thinking`              — Qwen / SiliconFlow `enable_thinking` boolean
@@ -108,6 +109,7 @@ type ReasoningParamType =
   | 'openrouter_claude_adaptive_verbosity'
   | 'thinking'
   | 'thinking_with_high_max_reasoning_effort'
+  | 'forced_thinking_with_reasoning_effort'
   | 'thinking_with_reasoning_effort'
   | 'official'
   | 'disable_reasoning'
@@ -671,6 +673,7 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
   private buildReasoningParams(
     model: ModelConfig,
     type: ReasoningParamType,
+    useNestedClearThinking = false,
   ): Partial<ChatCompletionCreateParamsBase> {
     const thinking = model.thinking;
     const isDisabled = this.isThinkingDisabled(thinking);
@@ -714,7 +717,12 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
       // @see https://api-docs.deepseek.com/zh-cn/guides/thinking_mode
       case 'thinking': {
         if (!thinking) return {};
-        return { thinking: { type: thinking.type } };
+        return {
+          thinking: this.buildThinkingParam(
+            thinking.type,
+            useNestedClearThinking,
+          ),
+        };
       }
 
       // GLM / DeepSeek V4 — `thinking: { type }` + `reasoning_effort: high|max`
@@ -726,13 +734,31 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
         }
         if (isDisabled) {
           return {
-            thinking: { type: 'disabled' },
+            thinking: this.buildThinkingParam(
+              'disabled',
+              useNestedClearThinking,
+            ),
           };
         }
         return {
-          thinking: {
-            type: this.normalizeThinkingTypeForDeepSeek(thinking.type),
-          },
+          thinking: this.buildThinkingParam(
+            this.normalizeThinkingTypeForDeepSeek(thinking.type),
+            useNestedClearThinking,
+          ),
+        };
+      }
+
+      // GLM-5.3 — thinking is mandatory and `reasoning_effort` controls depth.
+      // @see https://docs.z.ai/guides/vlm/glm-5.3-flash
+      case 'forced_thinking_with_reasoning_effort': {
+        if (!thinking) {
+          return {};
+        }
+        return {
+          thinking: this.buildThinkingParam(
+            'enabled',
+            useNestedClearThinking,
+          ),
         };
       }
 
@@ -744,12 +770,18 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
         }
         if (thinking.type === 'disabled') {
           return {
-            thinking: { type: 'disabled' },
+            thinking: this.buildThinkingParam(
+              'disabled',
+              useNestedClearThinking,
+            ),
             reasoning_effort: 'minimal',
           };
         }
         return {
-          thinking: { type: thinking.type },
+          thinking: this.buildThinkingParam(
+            thinking.type,
+            useNestedClearThinking,
+          ),
           ...(thinking.effort == null
             ? {}
             : {
@@ -825,6 +857,16 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
     }
   }
 
+  private buildThinkingParam(
+    type: NonNullable<ChatCompletionCreateParamsBase['thinking']>['type'],
+    useNestedClearThinking: boolean,
+  ): NonNullable<ChatCompletionCreateParamsBase['thinking']> {
+    return {
+      type,
+      ...(useNestedClearThinking ? { clear_thinking: false } : {}),
+    };
+  }
+
   private isThinkingDisabled(
     thinking: ModelConfig['thinking'] | undefined,
   ): boolean {
@@ -853,6 +895,19 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
           thinking.effort,
         ),
       };
+    }
+
+    if (type === 'forced_thinking_with_reasoning_effort') {
+      if (this.isThinkingDisabled(thinking)) {
+        return { reasoning_effort: 'low' };
+      }
+      return thinking.effort == null
+        ? {}
+        : {
+            reasoning_effort: this.normalizeReasoningEffortForGlm53(
+              thinking.effort,
+            ),
+          };
     }
 
     if (type !== 'thinking_with_high_max_reasoning_effort') {
@@ -905,6 +960,24 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
       case 'medium':
       case 'low':
       case 'minimal':
+      default:
+        return 'high';
+    }
+  }
+
+  private normalizeReasoningEffortForGlm53(
+    effort: NonNullable<NonNullable<ModelConfig['thinking']>['effort']>,
+  ): 'low' | 'high' | 'max' {
+    switch (effort) {
+      case 'none':
+      case 'minimal':
+      case 'low':
+        return 'low';
+      case 'xhigh':
+      case 'max':
+        return 'max';
+      case 'medium':
+      case 'high':
       default:
         return 'high';
     }
@@ -1016,6 +1089,11 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
       this.config,
       model,
     );
+    const useGlm53ReasoningEffortParam = isFeatureSupported(
+      FeatureId.OpenAIUseGlm53ReasoningEffortParam,
+      this.config,
+      model,
+    );
     const useTopK = isFeatureSupported(
       FeatureId.OpenAIUseTopK,
       this.config,
@@ -1061,8 +1139,13 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
       this.config,
       model,
     );
-    const useClearThinking = isFeatureSupported(
+    const useNestedClearThinking = isFeatureSupported(
       FeatureId.OpenAIUseClearThinking,
+      this.config,
+      model,
+    );
+    const useTopLevelClearThinking = isFeatureSupported(
+      FeatureId.OpenAIUseTopLevelClearThinking,
       this.config,
       model,
     );
@@ -1083,11 +1166,13 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
     } else if (useReasoningParam) {
       thinkingParamType = 'reasoning';
     } else if (useThinkingParam) {
-      thinkingParamType = useDeepSeekReasoningEffortParam
-        ? 'thinking_with_high_max_reasoning_effort'
-        : useReasoningEffortParam
-          ? 'thinking_with_reasoning_effort'
-          : 'thinking';
+      thinkingParamType = useGlm53ReasoningEffortParam
+        ? 'forced_thinking_with_reasoning_effort'
+        : useDeepSeekReasoningEffortParam
+          ? 'thinking_with_high_max_reasoning_effort'
+          : useReasoningEffortParam
+            ? 'thinking_with_reasoning_effort'
+            : 'thinking';
     } else if (useDisableReasoningParam) {
       thinkingParamType = 'disable_reasoning';
     } else if (useThinkingParam3) {
@@ -1142,13 +1227,17 @@ export class OpenAIChatCompletionProvider implements ApiProvider {
     const baseBody: ChatCompletionCreateParamsBase = {
       model: getBaseModelId(model.id),
       messages: convertedMessages,
-      ...this.buildReasoningParams(model, thinkingParamType),
+      ...this.buildReasoningParams(
+        model,
+        thinkingParamType,
+        useNestedClearThinking,
+      ),
       ...(useThinkingStrategyParam
         ? this.buildThinkingStrategyParam(model)
         : {}),
       ...(serviceTier !== undefined ? { service_tier: serviceTier } : {}),
       ...(useTopK && model.topK !== undefined ? { top_k: model.topK } : {}),
-      ...(useClearThinking ? { clear_thinking: false } : {}),
+      ...(useTopLevelClearThinking ? { clear_thinking: false } : {}),
       ...(useReasoningSplitParam ? { reasoning_split: true } : {}),
       ...(useMaxInputTokens && model.maxInputTokens !== undefined
         ? { max_input_tokens: model.maxInputTokens }

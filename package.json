@@ -2,7 +2,7 @@
   "name": "vscode-unify-chat-provider",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "8.6.0",
+  "version": "8.9.0",
   "categories": [
     "AI",
     "Chat"
@@ -20,6 +20,7 @@
     "oai",
     "openai",
     "anthropic",
+    "command-code",
     "gemini",
     "ollama",
     "deepseek",
@@ -651,7 +652,11 @@
                   "xai-grok-build",
                   "ollama",
                   "claude-code",
-                  "zed"
+                  "zed",
+                  "command-code",
+                  "opencode-zen",
+                  "opencode-go",
+                  "openrouter"
                 ],
                 "enumDescriptions": [
                   "%configuration.endpoints.type.enumDescriptions.0%",
@@ -666,7 +671,11 @@
                   "%configuration.endpoints.type.enumDescriptions.11%",
                   "%configuration.endpoints.type.enumDescriptions.5%",
                   "%configuration.endpoints.type.enumDescriptions.9%",
-                  "%configuration.endpoints.type.enumDescriptions.12%"
+                  "%configuration.endpoints.type.enumDescriptions.12%",
+                  "%configuration.endpoints.type.enumDescriptions.13%",
+                  "%configuration.endpoints.type.enumDescriptions.14%",
+                  "%configuration.endpoints.type.enumDescriptions.15%",
+                  "%configuration.endpoints.type.enumDescriptions.16%"
                 ]
               },
               "name": {
@@ -836,6 +845,18 @@
                         "type": "string",
                         "const": "minimax",
                         "description": "%configuration.endpoints.balanceProvider.method.minimax.description%"
+                      }
+                    },
+                    "required": [
+                      "method"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "method": {
+                        "type": "string",
+                        "const": "sub2api",
+                        "description": "%configuration.endpoints.balanceProvider.method.sub2api.description%"
                       }
                     },
                     "required": [

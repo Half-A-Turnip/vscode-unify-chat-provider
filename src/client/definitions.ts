@@ -12,8 +12,14 @@ import { OllamaProvider } from './ollama/client';
 import { OpenAIChatCompletionProvider } from './openai/chat-completion-client';
 import { OpenAICodexProvider } from './openai/codex-client';
 import { OpenAIResponsesProvider } from './openai/responses-client';
+import { OpenRouterProvider } from './openrouter/client';
 import { XaiGrokBuildProvider } from './xai/grok-build-client';
 import { ZedProvider } from './zed/provider';
+import { CommandCodeProvider } from './command-code/provider';
+import {
+  OpenCodeGoProvider,
+  OpenCodeZenProvider,
+} from './opencode/provider';
 import { Feature } from './types';
 import { matchProvider, matchModelFamily } from './utils';
 
@@ -25,6 +31,10 @@ export type ProviderType =
   | 'google-antigravity'
   | 'google-gemini-cli'
   | 'github-copilot'
+  | 'command-code'
+  | 'opencode-zen'
+  | 'opencode-go'
+  | 'openrouter'
   | 'zed'
   | 'openai-chat-completion'
   | 'openai-codex'
@@ -39,6 +49,35 @@ export const PROVIDER_TYPES: Record<ProviderType, ProviderDefinition> = {
     description: '/v1/messages',
     category: 'General',
     class: AnthropicProvider,
+    emptyChatResponsePolicy: 'success',
+  },
+  'command-code': {
+    type: 'command-code',
+    label: t('Command Code'),
+    description: t('Official API with automatic model synchronization'),
+    category: 'General',
+    class: CommandCodeProvider,
+  },
+  'opencode-zen': {
+    type: 'opencode-zen',
+    label: t('OpenCode Zen'),
+    description: t('Official API with automatic model endpoint routing'),
+    category: 'General',
+    class: OpenCodeZenProvider,
+  },
+  'opencode-go': {
+    type: 'opencode-go',
+    label: t('OpenCode Go'),
+    description: t('Official API with automatic model endpoint routing'),
+    category: 'General',
+    class: OpenCodeGoProvider,
+  },
+  openrouter: {
+    type: 'openrouter',
+    label: t('OpenRouter'),
+    description: '/api/v1/chat/completions',
+    category: 'General',
+    class: OpenRouterProvider,
   },
   'google-ai-studio': {
     type: 'google-ai-studio',
@@ -165,6 +204,83 @@ function modelIdentityIncludes(
   );
 }
 
+const GLM_5_3_MODEL_IDENTITIES = new Set([
+  'glm-5.3',
+  'z-ai/glm-5.3',
+  'glm-5.3-flash',
+  'z-ai/glm-5.3-flash',
+]);
+const GLM_5_3_PROVIDER_ENDPOINTS = new Set([
+  'https://open.bigmodel.cn/api/paas/v4',
+  'https://open.bigmodel.cn/api/coding/paas/v4',
+  'https://api.z.ai/api/paas/v4',
+  'https://api.z.ai/api/coding/paas/v4',
+]);
+const QWEN_3_8_MODEL_IDENTITIES = new Set([
+  'qwen3.8-max',
+  'qwen3.8-flash',
+  'qwen3.8-flash-next',
+  'qwen3.8-27b',
+]);
+const QWEN_CLOUD_OPENAI_ENDPOINTS = new Set([
+  'https://dashscope.aliyuncs.com/compatible-mode/v1',
+  'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+  'https://dashscope-us.aliyuncs.com/compatible-mode/v1',
+  'https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1',
+  'https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1',
+]);
+
+function isExactOpenAIChatCompletionEndpoint(
+  provider: { type: ProviderType; baseUrl: string },
+  endpoints: ReadonlySet<string>,
+): boolean {
+  if (provider.type !== 'openai-chat-completion') {
+    return false;
+  }
+
+  try {
+    const url = new URL(provider.baseUrl);
+    if (
+      url.username !== '' ||
+      url.password !== '' ||
+      url.search !== '' ||
+      url.hash !== ''
+    ) {
+      return false;
+    }
+    const pathname = url.pathname.replace(/\/+$/, '');
+    return endpoints.has(`${url.origin}${pathname}`);
+  } catch {
+    return false;
+  }
+}
+
+function isGlm53Model(model: { id: string; family?: string }): boolean {
+  const baseId = getBaseModelId(model.id).trim().toLowerCase();
+  const family = model.family?.trim().toLowerCase();
+  return (
+    GLM_5_3_MODEL_IDENTITIES.has(baseId) ||
+    (family !== undefined && GLM_5_3_MODEL_IDENTITIES.has(family))
+  );
+}
+
+function isOfficialGlm53Provider(provider: {
+  type: ProviderType;
+  baseUrl: string;
+}): boolean {
+  return isExactOpenAIChatCompletionEndpoint(
+    provider,
+    GLM_5_3_PROVIDER_ENDPOINTS,
+  );
+}
+
+function isOfficialGlm53Request(
+  model: { id: string; family?: string },
+  provider: { type: ProviderType; baseUrl: string },
+): boolean {
+  return isGlm53Model(model) && isOfficialGlm53Provider(provider);
+}
+
 function isMoonshotOpenAIProvider(provider: { baseUrl: string }): boolean {
   return ['api.moonshot.cn', 'api.moonshot.ai'].some((pattern) =>
     matchProvider(provider.baseUrl, pattern),
@@ -177,19 +293,16 @@ function isKimiK3Model(model: { id: string; family?: string }): boolean {
 
 function isQwen38ModelStudioEndpoint(
   model: { id: string; family?: string },
-  provider: { baseUrl: string },
+  provider: { type: ProviderType; baseUrl: string },
 ): boolean {
-  const isQwen38Max = [model.family, getBaseModelId(model.id)].some(
-    (value) => value?.toLowerCase() === 'qwen3.8-max',
+  const isQwen38 = [model.family, getBaseModelId(model.id)].some(
+    (value) =>
+      value !== undefined &&
+      QWEN_3_8_MODEL_IDENTITIES.has(value.trim().toLowerCase()),
   );
   return (
-    isQwen38Max &&
-    [
-      'dashscope.aliyuncs.com',
-      'dashscope-intl.aliyuncs.com',
-      'dashscope-us.aliyuncs.com',
-      'token-plan.cn-beijing.maas.aliyuncs.com',
-    ].some((host) => matchProvider(provider.baseUrl, host))
+    isQwen38 &&
+    isExactOpenAIChatCompletionEndpoint(provider, QWEN_CLOUD_OPENAI_ENDPOINTS)
   );
 }
 
@@ -285,6 +398,13 @@ export enum FeatureId {
    * @see https://api-docs.deepseek.com/zh-cn/
    */
   OpenAIUseDeepSeekReasoningEffortParam = 'openai_use-deepseek-reasoning-effort-param',
+  /**
+   * GLM-5.3 always reasons and accepts `low`, `high`, or `max` as its
+   * `reasoning_effort` value.
+   *
+   * @see https://docs.z.ai/guides/vlm/glm-5.3-flash
+   */
+  OpenAIUseGlm53ReasoningEffortParam = 'openai_use-glm-5.3-reasoning-effort-param',
   /**
    * Using both the unofficial `thinking` and the `reasoning` fields in the OpenAI Responses API.
    *
@@ -392,9 +512,17 @@ export enum FeatureId {
    */
   OpenAIUseDisableReasoningParam = 'openai_use-disable-reasoning-param',
   /**
-   * @see https://docs.bigmodel.cn/cn/guide/capabilities/thinking-mode
+   * Use `thinking.clear_thinking` in Z.AI-compatible Chat Completion APIs.
+   *
+   * @see https://docs.z.ai/api-reference/llm/chat-completion
    */
   OpenAIUseClearThinking = 'openai_use-clear-thinking',
+  /**
+   * Use a provider-specific top-level `clear_thinking` variant.
+   *
+   * @see https://inference-docs.cerebras.ai/api-reference/chat-completions
+   */
+  OpenAIUseTopLevelClearThinking = 'openai_use-top-level-clear-thinking',
   /**
    * Use `reasoning_split` parameter in OpenAI-compatible Chat Completion APIs.
    */
@@ -669,6 +797,9 @@ export const FEATURES: Record<FeatureId, Feature> = {
       (model) => modelFamilyIncludes(model, 'deepseek-v4'),
     ],
   },
+  [FeatureId.OpenAIUseGlm53ReasoningEffortParam]: {
+    customCheckers: [isOfficialGlm53Request],
+  },
   [FeatureId.OpenAIStripIncludeParam]: {
     supportedProviders: [
       'ark.cn-beijing.volces.com',
@@ -697,6 +828,8 @@ export const FEATURES: Record<FeatureId, Feature> = {
     supportedProviders: [
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.synthetic.new',
     ],
@@ -705,6 +838,8 @@ export const FEATURES: Record<FeatureId, Feature> = {
     supportedProviders: [
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
     ],
   },
@@ -712,6 +847,8 @@ export const FEATURES: Record<FeatureId, Feature> = {
     supportedProviders: [
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.siliconflow.cn',
       'api.siliconflow.com',
@@ -740,8 +877,10 @@ export const FEATURES: Record<FeatureId, Feature> = {
   },
   [FeatureId.OpenAIUseThinkingBudgetParam]: {
     supportedProviders: [
+      'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
-      'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.siliconflow.cn',
       'api.siliconflow.com',
@@ -785,8 +924,10 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'api.moonshot.ai',
       'opencode.ai',
       'api.kimi.com',
+      'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
-      'dashscope-intl.aliyuncs.com',
+      'token-plan.cn-beijing.maas.aliyuncs.com',
+      'token-plan.ap-southeast-1.maas.aliyuncs.com',
       'api-inference.modelscope.cn',
       'api.siliconflow.cn',
       'api.siliconflow.com',
@@ -795,10 +936,15 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'qianfan.baidubce.com',
       'integrate.api.nvidia.com',
     ],
-    customCheckers: [isQwen38ModelStudioEndpoint],
+    customCheckers: [
+      isQwen38ModelStudioEndpoint,
+      (model) => modelFamilyIncludes(model, 'deepseek-v4'),
+    ],
   },
   [FeatureId.OpenAIUseClearThinking]: {
     supportedProviders: ['open.bigmodel.cn', 'api.z.ai'],
+  },
+  [FeatureId.OpenAIUseTopLevelClearThinking]: {
     customCheckers: [
       // Checker for Cerebras GLM 4.7 model:
       (model, provider) =>
@@ -806,7 +952,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
         matchModelFamily(model.family ?? getBaseModelId(model.id), [
           'zai-glm-4.7',
         ]),
-      // Checker for Nvidia GLM 4.7 model:
+      // Preserve the existing Nvidia GLM 4.7 wire shape.
       (model, provider) =>
         matchProvider(provider.baseUrl, 'integrate.api.nvidia.com') &&
         matchModelFamily(model.family ?? getBaseModelId(model.id), [

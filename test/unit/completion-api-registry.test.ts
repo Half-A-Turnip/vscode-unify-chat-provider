@@ -29,11 +29,15 @@ import {
 import type { NativeCompletionApiContext } from '../../src/completion/api/provider';
 import type { CompletionTemplates } from '../../src/types';
 
-function context(templates: CompletionTemplates): NativeCompletionApiContext {
+function context(
+  templates: CompletionTemplates,
+  providerType: NativeCompletionApiContext['provider']['type'] =
+    'openai-chat-completion',
+): NativeCompletionApiContext {
   const model = { id: 'test-model' };
   return {
     provider: {
-      type: 'openai-chat-completion',
+      type: providerType,
       name: 'test-provider',
       baseUrl: 'https://example.test/v1',
       models: [model],
@@ -49,6 +53,7 @@ describe('native Completion API Provider registry', () => {
     expect(nativeCompletionApiProviderRegistry.listProviderTypes()).toEqual([
       'openai-chat-completion',
       'openai-responses',
+      'openrouter',
       'ollama',
       'zed',
     ]);
@@ -75,6 +80,27 @@ describe('native Completion API Provider registry', () => {
     expect(all?.operations['mercury-edit-2']).toBeDefined();
     expect(all?.operations.codestral).toBeDefined();
   });
+
+  it('does not treat Command Code as a traditional Completions provider', () => {
+    expect(
+      nativeCompletionApiProviderRegistry.create(context([], 'command-code')),
+    ).toBeUndefined();
+    expect(
+      nativeCompletionApiProviderRegistry.listProviderTypes(),
+    ).not.toContain('command-code');
+  });
+
+  it.each(['opencode-zen', 'opencode-go'] as const)(
+    'does not treat %s as a single-protocol Completions provider',
+    (providerType) => {
+      expect(
+        nativeCompletionApiProviderRegistry.create(context([], providerType)),
+      ).toBeUndefined();
+      expect(
+        nativeCompletionApiProviderRegistry.listProviderTypes(),
+      ).not.toContain(providerType);
+    },
+  );
 
   it('rejects duplicate and empty registrations at startup', () => {
     expect(

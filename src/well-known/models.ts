@@ -56,6 +56,7 @@ const OPENAI_OSS_REASONING_EFFORTS = ['high', 'medium', 'low'] as const;
 const TENCENT_HY3_REASONING_EFFORTS = ['high', 'medium', 'low'] as const;
 const DEEPSEEK_V4_REASONING_EFFORTS = ['max', 'high','low', 'none'] as const;
 const GLM_5_2_REASONING_EFFORTS = ['max', 'high', 'none'] as const;
+const GLM_5_3_REASONING_EFFORTS = ['max', 'high', 'low'] as const;
 const KIMI_K3_REASONING_EFFORTS = ['max', 'high', 'low'] as const;
 const NVIDIA_MINIMAX_REASONING_EFFORTS = [
   'high',
@@ -2365,6 +2366,34 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'deepseek-v4-flash-vision-exp',
+    overrides: [
+      {
+        matchers: ['integrate.api.nvidia.com'],
+        config: {
+          id: 'deepseek-ai/deepseek-v4-flash-vision-exp',
+          maxOutputTokens: 262144,
+        },
+      },
+    ],
+    name: 'DeepSeek V4 Flash Vision Exp',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 65536,
+    stream: true,
+    tokenizer: 'deepseek',
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(DEEPSEEK_V4_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
     id: 'deepseek-v4-flash',
     overrides: [
       {
@@ -2400,7 +2429,7 @@ const _WELL_KNOWN_MODELS = [
         matchers: ['integrate.api.nvidia.com'],
         config: {
           id: 'deepseek-ai/deepseek-v4-pro',
-          maxOutputTokens: 262144,
+          maxOutputTokens: 16384,
         },
       },
     ],
@@ -2967,6 +2996,80 @@ const _WELL_KNOWN_MODELS = [
       effort: 'xhigh',
     },
     parallelToolCalling: false,
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      reasoningEffort({
+        supported: QWEN_3_8_REASONING_EFFORTS,
+        default: 'xhigh',
+      }),
+    ],
+  },
+  {
+    id: 'qwen3.8-flash-next',
+    overrides: [
+      'hf:Qwen/Qwen3.8-Flash-Next',
+      {
+        matchers: [
+          'dashscope.aliyuncs.com',
+          'dashscope-intl.aliyuncs.com',
+          'dashscope-us.aliyuncs.com',
+          'token-plan.cn-beijing.maas.aliyuncs.com',
+          'token-plan.ap-southeast-1.maas.aliyuncs.com',
+        ],
+        config: {
+          id: 'qwen3.8-flash',
+          maxInputTokens: 983616,
+        },
+      },
+    ],
+    name: 'Qwen3.8-Flash-Next',
+    maxInputTokens: 262144,
+    maxOutputTokens: 131072,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'xhigh',
+    },
+    parallelToolCalling: true,
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      reasoningEffort({
+        supported: QWEN_3_8_REASONING_EFFORTS,
+        default: 'xhigh',
+      }),
+    ],
+  },
+  {
+    id: 'qwen3.8-27b',
+    overrides: [
+      'hf:Qwen/Qwen3.8-27B',
+      {
+        matchers: [
+          'dashscope.aliyuncs.com',
+          'dashscope-intl.aliyuncs.com',
+          'dashscope-us.aliyuncs.com',
+          'token-plan.cn-beijing.maas.aliyuncs.com',
+          'token-plan.ap-southeast-1.maas.aliyuncs.com',
+        ],
+        config: {
+          maxInputTokens: 983616,
+        },
+      },
+    ],
+    name: 'Qwen3.8-27B',
+    maxInputTokens: 262144,
+    maxOutputTokens: 131072,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'xhigh',
+    },
     capabilities: {
       toolCalling: true,
       imageInput: true,
@@ -4245,7 +4348,7 @@ const _WELL_KNOWN_MODELS = [
   },
   {
     id: 'glm-5.3',
-    overrides: ["z-ai/glm-5.3"],
+    overrides: ['z-ai/glm-5.3'],
     name: 'GLM-5.3',
     maxInputTokens: 1000000,
     maxOutputTokens: 128000,
@@ -4259,7 +4362,26 @@ const _WELL_KNOWN_MODELS = [
       imageInput: false,
     },
     presetTemplates: [
-      openAiReasoningEffort(GLM_5_2_REASONING_EFFORTS, 'max'),
+      openAiReasoningEffort(GLM_5_3_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
+    id: 'glm-5.3-flash',
+    overrides: ['z-ai/glm-5.3-flash', 'hf:zai-org/GLM-5.3-Flash'],
+    name: 'GLM-5.3-Flash',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(GLM_5_3_REASONING_EFFORTS, 'max'),
     ],
   },
   {

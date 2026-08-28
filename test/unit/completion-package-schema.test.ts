@@ -153,6 +153,10 @@ describe('completion package schemas', () => {
       'provider.type.enumDescriptions',
     );
     expect(values).toContain('zed');
+    expect(values).toContain('command-code');
+    expect(values).toContain('opencode-zen');
+    expect(values).toContain('opencode-go');
+    expect(values).toContain('openrouter');
     expect(values).not.toContain('inception');
     expect(values).not.toContain('mistral');
     expect(descriptions).toHaveLength(values.length);

@@ -147,7 +147,11 @@ export class NativeCompletionApiProviderRegistry {
 export const nativeCompletionApiProviderRegistry =
   new NativeCompletionApiProviderRegistry([
     {
-      providerTypes: ['openai-chat-completion', 'openai-responses'],
+      providerTypes: [
+        'openai-chat-completion',
+        'openai-responses',
+        'openrouter',
+      ],
       definition: OPENAI_COMPLETIONS_PROVIDER_DEFINITION,
     },
     {

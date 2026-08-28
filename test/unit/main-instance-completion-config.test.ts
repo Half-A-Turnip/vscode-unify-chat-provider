@@ -37,7 +37,14 @@ vi.mock('../../src/main-instance/index', () => ({
 }));
 
 vi.mock('../../src/client/definitions', () => ({
-  PROVIDER_TYPES: { 'openai-chat-completion': {}, zed: {} },
+  PROVIDER_TYPES: {
+    'command-code': {},
+    'opencode-go': {},
+    'opencode-zen': {},
+    openrouter: {},
+    'openai-chat-completion': {},
+    zed: {},
+  },
 }));
 
 vi.mock('../../src/utils', () => ({
@@ -354,8 +361,110 @@ describe('main-instance completion configuration sync', () => {
     expect(provider.models[0].completion).toEqual({});
   });
 
-  it('uses compatibility version 7 without changing protocol version 1', () => {
-    expect(MAIN_INSTANCE_COMPATIBILITY_VERSION).toBe(7);
+  it('round-trips the Sub2API balance method through leader RPC parsing', () => {
+    const provider = parseProviderConfig(
+      {
+        type: 'openai-chat-completion',
+        name: 'sub2api',
+        baseUrl: 'https://relay.example.test/v1',
+        models: [],
+        balanceProvider: { method: 'sub2api' },
+      },
+      METHOD,
+    );
+
+    expect(provider.balanceProvider).toEqual({ method: 'sub2api' });
+  });
+
+  it('round-trips the composite Command Code provider contract', () => {
+    const provider = parseProviderConfig(
+      {
+        type: 'command-code',
+        name: 'Command Code',
+        baseUrl: 'https://api.commandcode.ai/provider/v1',
+        useRawBaseUrl: false,
+        transport: 'sse',
+        serviceTier: 'priority',
+        extraBody: { shared_provider_option: true },
+        models: [
+          {
+            id: 'opaque-id',
+            name: 'Claude Opaque',
+            serviceTier: 'standard',
+            extraBody: { model_option: 'override' },
+          },
+        ],
+      },
+      METHOD,
+    );
+
+    expect(provider).toMatchObject({
+      type: 'command-code',
+      name: 'Command Code',
+      transport: 'sse',
+      serviceTier: 'priority',
+      extraBody: { shared_provider_option: true },
+      models: [
+        {
+          id: 'opaque-id',
+          name: 'Claude Opaque',
+          serviceTier: 'standard',
+          extraBody: { model_option: 'override' },
+        },
+      ],
+    });
+  });
+
+  it.each([
+    ['opencode-zen', 'OpenCode Zen', 'https://opencode.ai/zen/v1'],
+    ['opencode-go', 'OpenCode Go', 'https://opencode.ai/zen/go/v1'],
+  ] as const)(
+    'round-trips the composite %s provider contract',
+    (type, name, baseUrl) => {
+      const provider = parseProviderConfig(
+        {
+          type,
+          name,
+          baseUrl,
+          transport: 'sse',
+          extraBody: { shared_provider_option: true },
+          models: [{ id: 'future-model' }],
+        },
+        METHOD,
+      );
+
+      expect(provider).toMatchObject({
+        type,
+        name,
+        baseUrl,
+        transport: 'sse',
+        extraBody: { shared_provider_option: true },
+        models: [{ id: 'future-model' }],
+      });
+    },
+  );
+
+  it('round-trips the OpenRouter provider contract', () => {
+    const provider = parseProviderConfig(
+      {
+        type: 'openrouter',
+        name: 'OpenRouter',
+        baseUrl: 'https://openrouter.ai/api/v1',
+        models: [{ id: 'minimax/minimax-m3:free' }],
+      },
+      METHOD,
+    );
+
+    expect(provider).toMatchObject({
+      type: 'openrouter',
+      name: 'OpenRouter',
+      baseUrl: 'https://openrouter.ai/api/v1',
+      models: [{ id: 'minimax/minimax-m3:free' }],
+    });
+  });
+
+  it('uses compatibility version 10 without changing protocol version 1', () => {
+    expect(MAIN_INSTANCE_COMPATIBILITY_VERSION).toBe(10);
     expect(PROTOCOL_VERSION).toBe(1);
   });
 

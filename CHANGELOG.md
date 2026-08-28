@@ -1,5 +1,42 @@
 # Changelog
 
+## v8.9.0 - 2026-08-27
+
+### Features
+- add OpenCode Zen/Go auto-routing and OpenRouter provider integration (71f9d37, SmallMain)
+- add Command Code provider (7f2c266, SmallMain)
+
+### Other
+- Add Atlas Cloud well-known provider (9e61862, nb213)
+
+## v8.8.0 - 2026-08-27
+
+### Fixes
+- openai: nest Z.AI clear thinking parameter (a6db5ba, SmallMain)
+
+## v8.7.0 - 2026-08-27
+
+### Features
+- support MiniMax Token Plan quotas (4c1f6cd, SmallMain)
+- add Sub2API quota monitoring (0720f90, SmallMain)
+- enable DeepSeek V4 reasoning_content on custom providers (4d3d860, SmallMain)
+- add Qwen Cloud models and GLM-5.3/Qwen3.8 protocol support (1179b6a, SmallMain)
+- add DeepSeek V4 Flash Vision Exp model and update provider model list (616a3bd, SmallMain)
+
+### Fixes
+- harden MiniMax Token Plan quota handling (1e9c098, SmallMain)
+- derive effective Sub2API expiry status (4a442be, SmallMain)
+- honor Sub2API execution constraints (449a8f0, SmallMain)
+- cap NVIDIA DeepSeek V4 Pro output tokens (738555f, SmallMain)
+- antigravity: complete Flash model routing (e2df34a, SmallMain)
+- antigravity: add Gemini 3.5 and 3.6 Flash routes (4b9e68e, SmallMain)
+- antigravity: preserve opaque schema values (9632530, SmallMain)
+- antigravity: strip MCP header schema annotations (7bf61ab, SmallMain)
+- use Responses API for DeepSeek by default (03843e2, SmallMain)
+
+### Tests
+- plan4: assert DeepSeek catalog uses beta completion endpoint (56848bb, SmallMain)
+
 ## v8.6.0 - 2026-08-20
 
 ### Features
