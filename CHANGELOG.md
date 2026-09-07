@@ -1,5 +1,13 @@
 # Changelog
 
+## v8.10.0 - 2026-09-06
+
+### Features
+- add GPT-6 Astra and Gemini 3.8 Flash model support (663b992, SmallMain)
+
+### Fixes
+- astra: update GPT-6 Astra reasoning default from xhigh to max (1765326, SmallMain)
+
 ## v8.9.0 - 2026-08-27
 
 ### Features
