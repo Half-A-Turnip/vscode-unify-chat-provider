@@ -1,5 +1,13 @@
 # Changelog
 
+## v8.11.0 - 2026-09-20
+
+### Features
+- add Step 5 Preview model and Step Plan support for StepFun providers (6a20a4a, SmallMain)
+
+### Fixes
+- retry on servers overloaded error (0aaf36e, Nigel Kukard)
+
 ## v8.10.0 - 2026-09-06
 
 ### Features
