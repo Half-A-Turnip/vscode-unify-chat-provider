@@ -861,6 +861,14 @@ vscode://SmallMain.vscode-unify-chat-provider/import-config?config=<input>&auth=
 
 </details>
 
+### OpenCode 请求会话
+
+发送到 OpenCode Zen 和 Go 官方端点的推理请求会自动携带 `x-opencode-session`。该行为覆盖内置 OpenCode 供应商，以及指向 `https://opencode.ai/zen/...` 的已有通用 Chat Completions、Responses（HTTP/SSE 和 WebSocket）、Anthropic 和 Gemini 配置。
+
+参考 [opencode-go-copilot PR #119](https://github.com/OnesoftQwQ/opencode-go-copilot/pull/119)，UCP 对 API 模型 ID 和首条非空用户消息文本计算 SHA-256，并格式化为 UUID。图片和工具结果不参与文本锚点计算。没有用户文本时生成随机 UUID，同一次请求的重试会复用它。`extraHeaders` 中非空的 `x-opencode-session` 可覆盖默认值；模型级配置优先于供应商级配置，不区分请求头名称大小写。
+
+由于 VS Code 未向模型供应商暴露会话 ID，这是一种基于历史内容的路由标识。相同模型、相同首条用户文本会得到相同 ID；切换模型，或历史压缩替换首条用户文本时，ID 可能改变。
+
 ## 供应商支持表
 
 以下列出的供应商均支持 [一键配置](#一键配置)，并且已在实现中遵循官方文档的最佳实践，能够发挥模型的最佳性能。
@@ -883,6 +891,7 @@ vscode://SmallMain.vscode-unify-chat-provider/import-config?config=<input>&auth=
 | [Hugging Face (Inference Providers)](https://huggingface.co/docs/inference-providers)         |                                                                                      |                       |
 | [OpenRouter](https://openrouter.ai/)                                                          | <li>CacheControl <li>ReasoningParam <li>ReasoningDetails <li>ClaudeAdaptiveVerbosity | [详情](#openrouter)   |    ✅    |
 | [Atlas Cloud](https://www.atlascloud.ai/docs/zh/models/llm)                                   |                                                                                      |                       |
+| [OrcaRouter](https://docs.orcarouter.ai/)                                                     |                                                                                      | [详情](#orcarouter)   |
 | [AIHubMix](https://aihubmix.com/)                                                             |                                                                                      |                       |    ✅    |
 | [Cerebras](https://www.cerebras.ai/)                                                          | <li>ReasoningField <li>DisableReasoningParam <li>ClearThinking                       | [详情](#cerebras)     |
 | [Command Code](https://commandcode.ai/docs/provider)                                          | <li>自动同步官方模型                                                                 |                       |
@@ -918,7 +927,9 @@ vscode://SmallMain.vscode-unify-chat-provider/import-config?config=<input>&auth=
 | [Ollama Cloud](https://ollama.com/)                                                           |                                                                                      |                       |
 | [LM Studio Local](https://lmstudio.ai/)                                                           |                                                                                      |                       |
 | [阶跃星辰 (中国站)](https://platform.stepfun.com/)                                            | <li>ReasoningField                                                                   |                       |
+| [阶跃星辰 (中国站, Step Plan)](https://platform.stepfun.com/step-plan)                        | <li>ReasoningField                                                                   |                       |
 | [阶跃星辰 (国际站)](https://platform.stepfun.com/)                                            | <li>ReasoningField                                                                   |                       |
+| [阶跃星辰 (国际站, Step Plan)](https://platform.stepfun.ai/step-plan)                         | <li>ReasoningField                                                                   |                       |
 | [智谱 AI](https://open.bigmodel.cn/)                                                          | <li>ThinkingParam <li>ReasoningEffortParam <li>ReasoningContent <li>ClearThinking    | [详情](#智谱-ai--zai) |
 | [智谱 AI (Coding Plan)](https://open.bigmodel.cn/)                                            | <li>ThinkingParam <li>ReasoningEffortParam <li>ReasoningContent <li>ClearThinking    |                       |
 | [Z.AI](https://z.ai/)                                                                         | <li>ThinkingParam <li>ReasoningEffortParam <li>ReasoningContent <li>ClearThinking    | [详情](#智谱-ai--zai) |
@@ -955,6 +966,12 @@ vscode://SmallMain.vscode-unify-chat-provider/import-config?config=<input>&auth=
 | [Synthetic](https://synthetic.new/)                          | [详情](#synthetic)          |    ✅    |
 
 长期免费额度：
+
+#### OrcaRouter
+
+选择 `OrcaRouter` 内置供应商并填写 API Key。该配置使用 `https://api.orcarouter.ai/v1` 的 [OpenAI 兼容 Chat Completions API](https://docs.orcarouter.ai/api-reference/chat/create-a-chat-completion)。
+
+从官方模型列表中添加聊天模型，保留完整 API ID，例如 `openai/gpt-4.1`。由于目录还包含图片、视频和嵌入模型，默认不启用自动同步模型。此预设不包含余额监控。
 
 #### Kilo Code
 
@@ -1144,7 +1161,8 @@ vscode://SmallMain.vscode-unify-chat-provider/import-config?config=<input>&auth=
 | **Tencent HY**   | HY 3 系列         | HY 3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |  | HY 2.0 系列         | HY 2.0 Think, HY 2.0 Instruct                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 |                  | HY 1.5 系列         | HY Vision 1.5 Instruct                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **StepFun**      | Step 3 系列         | Step 3, Step 3.5 Flash                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **StepFun**      | Step 5 系列         | Step 5 Preview |
+|                  | Step 3 系列         | Step 3, Step 3.5 Flash                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 |                  | Step 2 系列         | Step 2 16k, Step 2 16k Exp, Step 2 Mini                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 |                  | Step 1 系列         | Step 1 8k, Step 1 32k, Step 1 128k, Step 1 256k, Step 1o Turbo Vision, Step 1o Vision 32k, Step 1v 8k, Step 1v 32k, Step R1 V Mini                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **OpenCode Zen** | Zen                 | Big Pickle                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -1188,6 +1206,8 @@ vscode://SmallMain.vscode-unify-chat-provider/import-config?config=<input>&auth=
 - 验证 chat-lib 移植：`npm run verify:chat-lib`
 - 新版本发布: `npm run release`
 - GitHub Actions 新版本发布：`Actions → Release (VS Code Extension) → Run workflow`
+
+E2E 测试复用机器上已安装的 VS Code，并使用隔离的临时用户数据，不下载、复制 VS Code 或修改已安装的应用。测试入口会检查常见安装目录和 `PATH`；也可以通过 `VSCODE_EXECUTABLE_PATH` 指定已有的可执行文件或 macOS `.app` 目录。找不到安装版本时直接报错并提示配置。禁用 Proposed API 的测试使用独立的测试扩展 ID，避免受 UCP 已有授权影响。发布工作流会先在一次性 CI 机器上显式准备 VS Code，再运行同一套测试。
 
 ## 许可证
 

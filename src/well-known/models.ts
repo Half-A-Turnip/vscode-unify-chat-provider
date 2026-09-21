@@ -5806,6 +5806,25 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'step-5-preview',
+    name: 'Step 5 Preview',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 1000000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'high',
+    },
+    presetTemplates: [reasoningEffort(['high', 'medium', 'low'])],
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    extraBody: {
+      reasoning_format: 'general',
+    },
+  },
+  {
     id: 'step-r1-v-mini',
     name: 'Step R1 V Mini',
     maxInputTokens: 100000,

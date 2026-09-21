@@ -1,5 +1,25 @@
 # Changelog
 
+## v8.12.0 - 2026-09-21
+
+### Features
+- add an OrcaRouter provider preset (1f2bd4d, SmallMain)
+
+### Fixes
+- ci: refresh apt indexes before installing VS Code (521ff92, SmallMain)
+- opencode: send session headers on inference requests (a7374ee, SmallMain)
+- openai: serialize image-bearing tool results correctly (e72fe74, SmallMain)
+- kimi: treat normalized usage as quota instead of tokens (19de1b2, SmallMain)
+- keep UCP activation independent of Copilot authentication (8b838b3, SmallMain)
+
+## v8.11.0 - 2026-09-20
+
+### Features
+- add Step 5 Preview model and Step Plan support for StepFun providers (6a20a4a, SmallMain)
+
+### Fixes
+- retry on servers overloaded error (0aaf36e, Nigel Kukard)
+
 ## v8.10.0 - 2026-09-06
 
 ### Features

@@ -11,6 +11,7 @@ import {
 } from '../types';
 import { FeatureId } from '../definitions';
 import { ApiProvider } from '../interface';
+import { applyOpenCodeSessionHeader } from '../opencode/session';
 import OpenAI from 'openai';
 import type { AuthTokenInfo, AuthTokenRefresh } from '../../auth/types';
 import {
@@ -2107,6 +2108,9 @@ export class OpenAIResponsesProvider implements ApiProvider {
       model,
       sanitizedMessages,
     );
+    applyOpenCodeSessionHeader(
+      headers, this.config, model, messages, requestTrace,
+    );
     updateResponsesMultiAgentBetaHeader(headers, multiAgentEnabled);
     let usedStandaloneResponsesCompaction = false;
     if (!multiAgentEnabled) {
@@ -2164,6 +2168,9 @@ export class OpenAIResponsesProvider implements ApiProvider {
       credential,
       model,
       sanitizedMessages,
+    );
+    applyOpenCodeSessionHeader(
+      webSocketHeaders, this.config, model, messages, requestTrace,
     );
     updateResponsesMultiAgentBetaHeader(
       webSocketHeaders,

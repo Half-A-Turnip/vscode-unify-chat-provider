@@ -155,6 +155,16 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     autoFetchOfficialModels: true,
   },
   {
+    name: 'OrcaRouter',
+    category: 'General',
+    type: 'openai-chat-completion',
+    baseUrl: 'https://api.orcarouter.ai/v1',
+    authTypes: ['api-key'],
+    models: [],
+    // The catalog includes non-chat models; let users select their chat models.
+    autoFetchOfficialModels: false,
+  },
+  {
     name: 'Kilo Code',
     category: 'General',
     type: 'openai-chat-completion',
@@ -613,7 +623,15 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://api.stepfun.com/v1',
     authTypes: ['api-key'],
-    models: ['step-3.5-flash', 'step-2-mini', 'step-1o-turbo-vision'],
+    models: ['step-5-preview', 'step-3.5-flash', 'step-2-mini', 'step-1o-turbo-vision'],
+  },
+  {
+    name: 'StepFun (China, Step Plan)',
+    category: 'General',
+    type: 'openai-chat-completion',
+    baseUrl: 'https://api.stepfun.com/step_plan/v1',
+    authTypes: ['api-key'],
+    models: ['step-5-preview', 'step-3.5-flash'],
   },
   {
     name: 'StepFun (International)',
@@ -621,7 +639,15 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://api.stepfun.ai/v1',
     authTypes: ['api-key'],
-    models: ['step-3.5-flash', 'step-2-mini', 'step-1o-turbo-vision'],
+    models: ['step-5-preview', 'step-3.5-flash', 'step-2-mini', 'step-1o-turbo-vision'],
+  },
+  {
+    name: 'StepFun (International, Step Plan)',
+    category: 'General',
+    type: 'openai-chat-completion',
+    baseUrl: 'https://api.stepfun.ai/step_plan/v1',
+    authTypes: ['api-key'],
+    models: ['step-5-preview', 'step-3.5-flash'],
   },
   {
     name: 'LiteLLM',

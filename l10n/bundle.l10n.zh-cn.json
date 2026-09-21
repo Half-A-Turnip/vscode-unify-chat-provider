@@ -31,7 +31,9 @@
   "Provider \"{0}\" updated.": "已更新供应商 \"{0}\"。",
   "Provider \"{0}\" added.": "已添加供应商 \"{0}\"。",
   "StepFun (China)": "阶跃星辰 (中国站)",
+  "StepFun (China, Step Plan)": "阶跃星辰 (中国站, Step Plan)",
   "StepFun (International)": "阶跃星辰 (国际站)",
+  "StepFun (International, Step Plan)": "阶跃星辰 (国际站, Step Plan)",
   "Provider \"{0}\" authentication data is missing. Please re-enter it before duplicating.": "供应商 \"{0}\" 的认证信息缺失。克隆前请重新进行认证。",
   "Provider duplicated as \"{0}\".": "已将供应商克隆为 \"{0}\"。",
   "Export Provider Configuration": "导出供应商配置",
@@ -1391,6 +1393,7 @@
   "No budget limit configured": "未配置预算上限",
   "Spent": "已支出",
   "Atlas Cloud": "Atlas Cloud",
+  "OrcaRouter": "OrcaRouter",
   "Official API with automatic model endpoint routing": "支持按模型自动路由端点的官方 API",
   "OpenCode Go": "OpenCode Go",
   "OpenCode Zen": "OpenCode Zen"
