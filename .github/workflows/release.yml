@@ -170,6 +170,7 @@ jobs:
           curl --fail --location --retry 3 \
             https://update.code.visualstudio.com/latest/linux-deb-x64/stable \
             --output "${RUNNER_TEMP}/vscode.deb"
+          sudo apt-get update
           sudo apt-get install --yes "${RUNNER_TEMP}/vscode.deb"
 
       - name: Run extension host tests
