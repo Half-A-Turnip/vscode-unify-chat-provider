@@ -1,5 +1,17 @@
 # Changelog
 
+## v8.12.0 - 2026-09-21
+
+### Features
+- add an OrcaRouter provider preset (1f2bd4d, SmallMain)
+
+### Fixes
+- ci: refresh apt indexes before installing VS Code (521ff92, SmallMain)
+- opencode: send session headers on inference requests (a7374ee, SmallMain)
+- openai: serialize image-bearing tool results correctly (e72fe74, SmallMain)
+- kimi: treat normalized usage as quota instead of tokens (19de1b2, SmallMain)
+- keep UCP activation independent of Copilot authentication (8b838b3, SmallMain)
+
 ## v8.11.0 - 2026-09-20
 
 ### Features
