@@ -1,5 +1,10 @@
 # Changelog
 
+## v8.13.0 - 2026-09-22
+
+### Features
+- Update model definitions and features for new AI models (b0655d3, SmallMain)
+
 ## v8.12.0 - 2026-09-21
 
 ### Features
