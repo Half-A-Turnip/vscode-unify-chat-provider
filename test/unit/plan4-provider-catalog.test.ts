@@ -18,10 +18,14 @@ vi.mock('../../src/client/utils', () => ({
 }));
 
 import {
+  findBestMatchingWellKnownModel,
   getAlternativeIds,
   WELL_KNOWN_MODELS,
 } from '../../src/well-known/models';
-import { WELL_KNOWN_PROVIDERS } from '../../src/well-known/providers';
+import {
+  resolveProviderModels,
+  WELL_KNOWN_PROVIDERS,
+} from '../../src/well-known/providers';
 
 function getModel(id: string) {
   const model = WELL_KNOWN_MODELS.find((candidate) => candidate.id === id);
@@ -51,6 +55,39 @@ describe('Plan 4 provider definitions', () => {
 });
 
 describe('Plan 4 well-known catalog', () => {
+  it('resolves the upgraded Kimi Code alias without capturing HighSpeed', () => {
+    const provider = WELL_KNOWN_PROVIDERS.find(
+      (candidate) => candidate.name === 'Moonshot AI (Coding Plan)',
+    );
+    if (!provider) throw new Error('Kimi Code provider is missing');
+    const models = resolveProviderModels(provider);
+    expect(models.find((model) => model.id === 'kimi-for-coding')).toMatchObject({
+      name: 'Kimi K2.8 Preview',
+      maxInputTokens: 1048576,
+      thinking: { type: 'enabled', effort: 'max' },
+    });
+    expect(
+      models.find((model) => model.id === 'kimi-for-coding-highspeed'),
+    ).toMatchObject({ name: 'Kimi K2.7 Code Highspeed' });
+    expect(findBestMatchingWellKnownModel('kimi-k2.7-code')?.id)
+      .toBe('kimi-k2.7-code');
+  });
+
+  it.each([
+    ['claude-fable-5-1', 'claude-fable-5-1'],
+    ['grok-4.7', 'grok-4.7'],
+    ['kimi-for-coding', 'kimi-k2.8-preview'],
+    ['hy4-preview', 'hy4-preview'],
+    ['z-ai/glm-5.3-flashx', 'glm-5.3-flashx'],
+    ['deepseek-ai/DeepSeek-V4.1-Flash', 'deepseek-flash'],
+    ['deepseek/deepseek-flash', 'deepseek-flash'],
+    ['mimo-v2.6-pro', 'mimo-v2.6-pro'],
+    ['mimo-v2.6-flash', 'mimo-v2.6-flash'],
+    ['mimo-v2.6-pro-ultraspeed', 'mimo-v2.6-pro-ultraspeed'],
+  ])('matches %s to its own model instead of a predecessor', (id, expected) => {
+    expect(findBestMatchingWellKnownModel(id)?.id).toBe(expected);
+  });
+
   it('declares the DeepSeek beta completion endpoint', () => {
     expect(
       WELL_KNOWN_PROVIDERS.find((provider) => provider.name === 'DeepSeek'),

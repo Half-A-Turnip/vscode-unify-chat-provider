@@ -61,6 +61,7 @@ const OPENAI_CODEX_REASONING_EFFORTS = [
 ] as const;
 const OPENAI_OSS_REASONING_EFFORTS = ['high', 'medium', 'low'] as const;
 const TENCENT_HY3_REASONING_EFFORTS = ['high', 'medium', 'low'] as const;
+const TENCENT_HY4_REASONING_EFFORTS = ['high', 'none'] as const;
 const DEEPSEEK_V4_REASONING_EFFORTS = ['max', 'high','low', 'none'] as const;
 const GLM_5_2_REASONING_EFFORTS = ['max', 'high', 'none'] as const;
 const GLM_5_3_REASONING_EFFORTS = ['max', 'high', 'low'] as const;
@@ -79,6 +80,13 @@ const ANTHROPIC_OPUS_4_7_REASONING_EFFORTS = [
   'low',
 ] as const;
 const ANTHROPIC_FABLE_5_REASONING_EFFORTS = [
+  'xhigh',
+  'high',
+  'medium',
+  'low',
+] as const;
+const ANTHROPIC_FABLE_5_1_REASONING_EFFORTS = [
+  'max',
   'xhigh',
   'high',
   'medium',
@@ -683,6 +691,31 @@ const _WELL_KNOWN_MODELS = [
       toolCalling: false,
       imageInput: false,
     },
+  },
+  {
+    id: 'claude-fable-5-1',
+    name: 'Claude Fable 5.1',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'auto',
+      effort: 'high',
+      summary: 'auto',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+      editTools: 'multi-find-replace',
+    },
+    presetTemplates: [
+      withThinkingSummaryAuto(
+        anthropicAdaptiveReasoningEffort(
+          ANTHROPIC_FABLE_5_1_REASONING_EFFORTS,
+          'high',
+        ),
+      ),
+    ],
   },
   {
     id: 'claude-fable-5',
@@ -2410,6 +2443,27 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'deepseek-flash',
+    overrides: ['deepseek-v4.1-flash', 'deepseek-ai/DeepSeek-V4.1-Flash'],
+    name: 'DeepSeek V4.1 Flash',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 393216,
+    stream: true,
+    tokenizer: 'deepseek',
+    completion: { templates: ['fim'] },
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(DEEPSEEK_V4_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
     id: 'deepseek-v4-flash-vision-exp',
     overrides: [
       {
@@ -2817,6 +2871,32 @@ const _WELL_KNOWN_MODELS = [
     ],
   },
   {
+    id: 'kimi-k2.8-preview',
+    overrides: [
+      {
+        matchers: ['api.kimi.com/coding', 'api.kimi.ai/coding'],
+        config: {
+          id: 'kimi-for-coding',
+        },
+      },
+    ],
+    name: 'Kimi K2.8 Preview',
+    maxInputTokens: 1048576,
+    maxOutputTokens: 131072,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(KIMI_K3_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
     id: 'kimi-k2.7-code-highspeed',
     overrides: [
       {
@@ -2840,14 +2920,6 @@ const _WELL_KNOWN_MODELS = [
   },
   {
     id: 'kimi-k2.7-code',
-    overrides: [
-      {
-        matchers: ['api.kimi.com/coding'],
-        config: {
-          id: 'kimi-for-coding',
-        },
-      },
-    ],
     name: 'Kimi K2.7 Code',
     maxInputTokens: 256000,
     maxOutputTokens: 128000,
@@ -4307,6 +4379,48 @@ const _WELL_KNOWN_MODELS = [
     },
   },
   {
+    id: 'mimo-v2.6-pro-ultraspeed',
+    name: 'MiMo V2.6 Pro UltraSpeed',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+  },
+  {
+    id: 'mimo-v2.6-pro',
+    name: 'MiMo V2.6 Pro',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+  },
+  {
+    id: 'mimo-v2.6-flash',
+    name: 'MiMo V2.6 Flash',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+  },
+  {
     id: 'mimo-v2.5-pro-ultraspeed',
     name: 'MiMo V2.5 Pro UltraSpeed',
     maxInputTokens: 1000000,
@@ -4404,6 +4518,25 @@ const _WELL_KNOWN_MODELS = [
     capabilities: {
       toolCalling: true,
       imageInput: false,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(GLM_5_3_REASONING_EFFORTS, 'max'),
+    ],
+  },
+  {
+    id: 'glm-5.3-flashx',
+    overrides: ['z-ai/glm-5.3-flashx'],
+    name: 'GLM-5.3-FlashX',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 128000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'max',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
     },
     presetTemplates: [
       openAiReasoningEffort(GLM_5_3_REASONING_EFFORTS, 'max'),
@@ -4890,6 +5023,27 @@ const _WELL_KNOWN_MODELS = [
       toolCalling: true,
       imageInput: true,
     },
+  },
+  {
+    id: 'grok-4.7',
+    name: 'Grok 4.7',
+    maxInputTokens: 500000,
+    maxOutputTokens: 65536,
+    stream: true,
+    capabilities: {
+      toolCalling: true,
+      imageInput: true,
+    },
+    thinking: {
+      type: 'enabled',
+      effort: 'xhigh',
+    },
+    presetTemplates: [
+      reasoningEffort({
+        supported: GROK_4_6_REASONING_EFFORTS,
+        default: 'xhigh',
+      }),
+    ],
   },
   {
     id: 'grok-4.6',
@@ -5456,6 +5610,24 @@ const _WELL_KNOWN_MODELS = [
       imageInput: true,
     },
     presetTemplates: [thinkingMode()],
+  },
+  {
+    id: 'hy4-preview',
+    name: 'Hy4 Preview',
+    maxInputTokens: 1000000,
+    maxOutputTokens: 64000,
+    stream: true,
+    thinking: {
+      type: 'enabled',
+      effort: 'high',
+    },
+    capabilities: {
+      toolCalling: true,
+      imageInput: false,
+    },
+    presetTemplates: [
+      openAiReasoningEffort(TENCENT_HY4_REASONING_EFFORTS, 'high'),
+    ],
   },
   {
     id: 'hy3',
