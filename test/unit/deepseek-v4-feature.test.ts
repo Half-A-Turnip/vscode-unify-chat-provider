@@ -54,6 +54,10 @@ describe('DeepSeek V4 reasoning content feature', () => {
     { id: 'deepseek-v4-pro' },
     { id: 'deepseek-ai/deepseek-v4-pro' },
     { id: 'deepseek-v4-flash#thinking' },
+    { id: 'deepseek-flash' },
+    { id: 'deepseek/deepseek-flash#thinking' },
+    { id: 'deepseek-v4.1-flash' },
+    { id: 'custom-model', family: 'deepseek-flash' },
     { id: 'custom-model', family: 'deepseek-v4-pro' },
   ] satisfies ModelConfig[])(
     'enables reasoning_content on custom endpoints for $id',
@@ -73,4 +77,18 @@ describe('DeepSeek V4 reasoning content feature', () => {
       expect(supportsReasoningContent(model)).toBe(false);
     },
   );
+});
+
+describe('DeepSeek V4.1 thinking parameters', () => {
+  it.each([
+    FeatureId.OpenAIUseThinkingParam,
+    FeatureId.OpenAIUseDeepSeekReasoningEffortParam,
+  ])('retains V4 parameter handling for the new API ID: %s', (feature) => {
+    expect(
+      isFeatureSupported(feature, CUSTOM_PROVIDER, { id: 'deepseek-flash' }),
+    ).toBe(true);
+    expect(
+      isFeatureSupported(feature, CUSTOM_PROVIDER, { id: 'ordinary-chat-model' }),
+    ).toBe(false);
+  });
 });

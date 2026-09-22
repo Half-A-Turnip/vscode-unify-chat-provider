@@ -204,11 +204,20 @@ function modelIdentityIncludes(
   );
 }
 
+function isDeepSeekV4Model(model: { id: string; family?: string }): boolean {
+  return (
+    modelFamilyIncludes(model, 'deepseek-v4') ||
+    modelFamilyIncludes(model, 'deepseek-flash')
+  );
+}
+
 const GLM_5_3_MODEL_IDENTITIES = new Set([
   'glm-5.3',
   'z-ai/glm-5.3',
   'glm-5.3-flash',
   'z-ai/glm-5.3-flash',
+  'glm-5.3-flashx',
+  'z-ai/glm-5.3-flashx',
 ]);
 const GLM_5_3_PROVIDER_ENDPOINTS = new Set([
   'https://open.bigmodel.cn/api/paas/v4',
@@ -584,6 +593,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
   },
   [FeatureId.AnthropicXHighEffort]: {
     supportedFamilys: [
+      'claude-fable-5-1',
       'claude-opus-5',
       'claude-sonnet-5',
       'claude-opus-4-8',
@@ -632,6 +642,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'api.moonshot.cn',
       'api.moonshot.ai',
       'api.kimi.com',
+      'api.kimi.ai',
     ],
     supportedFamilys: [
       'codex-mini-latest',
@@ -744,6 +755,9 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'api.lkeap.cloud.tencent.com',
       'api.deepseek.com',
       'api.xiaomimimo.com',
+      'token-plan-cn.xiaomimimo.com',
+      'token-plan-sgp.xiaomimimo.com',
+      'token-plan-ams.xiaomimimo.com',
       'open.bigmodel.cn',
       'api.z.ai',
     ],
@@ -765,7 +779,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
         matchModelFamily(model.family ?? getBaseModelId(model.id), [
           'z-ai/glm',
         ]),
-      (model) => modelFamilyIncludes(model, 'deepseek-v4'),
+      isDeepSeekV4Model,
       (model) => modelFamilyIncludes(model, 'glm-5.2'),
     ],
   },
@@ -795,7 +809,9 @@ export const FEATURES: Record<FeatureId, Feature> = {
   [FeatureId.OpenAIUseDeepSeekReasoningEffortParam]: {
     customCheckers: [
       (model) => modelFamilyIncludes(model, 'glm-5.2'),
-      (model) => modelFamilyIncludes(model, 'deepseek-v4'),
+      isDeepSeekV4Model,
+      // Hy4 uses thinking.disabled; the generic path would send unsupported minimal effort.
+      (model) => modelFamilyIncludes(model, 'hy4-preview'),
     ],
   },
   [FeatureId.OpenAIUseGlm53ReasoningEffortParam]: {
@@ -919,12 +935,16 @@ export const FEATURES: Record<FeatureId, Feature> = {
       'api.lkeap.cloud.tencent.com',
       'api.deepseek.com',
       'api.xiaomimimo.com',
+      'token-plan-cn.xiaomimimo.com',
+      'token-plan-sgp.xiaomimimo.com',
+      'token-plan-ams.xiaomimimo.com',
       'open.bigmodel.cn',
       'api.z.ai',
       'api.moonshot.cn',
       'api.moonshot.ai',
       'opencode.ai',
       'api.kimi.com',
+      'api.kimi.ai',
       'dashscope.aliyuncs.com',
       'dashscope-intl.aliyuncs.com',
       'token-plan.cn-beijing.maas.aliyuncs.com',
@@ -939,7 +959,7 @@ export const FEATURES: Record<FeatureId, Feature> = {
     ],
     customCheckers: [
       isQwen38ModelStudioEndpoint,
-      (model) => modelFamilyIncludes(model, 'deepseek-v4'),
+      isDeepSeekV4Model,
     ],
   },
   [FeatureId.OpenAIUseClearThinking]: {

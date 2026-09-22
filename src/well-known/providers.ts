@@ -77,6 +77,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     baseUrl: 'https://api.anthropic.com',
     authTypes: ['api-key'],
     models: [
+      'claude-fable-5-1',
       'claude-fable-5',
       'claude-mythos-5',
       'claude-opus-5',
@@ -118,6 +119,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     baseUrl: 'https://api.x.ai',
     authTypes: ['api-key'],
     models: [
+      'grok-4.7',
       'grok-4.5',
       'grok-4.3',
       'grok-4.20-0309-reasoning',
@@ -433,7 +435,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://tokenhub.tencentmaas.com',
     authTypes: ['api-key'],
-    models: ['hy3'],
+    models: ['hy4-preview', 'hy3'],
   },
   {
     name: 'Tencent Cloud TokenHub (International)',
@@ -441,7 +443,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://tokenhub-intl.tencentmaas.com',
     authTypes: ['api-key'],
-    models: ['hy3'],
+    models: ['hy4-preview', 'hy3'],
   },
   {
     name: 'Tencent Cloud TokenHub (Personal Token Plan)',
@@ -450,7 +452,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     baseUrl: 'https://api.lkeap.cloud.tencent.com/plan/v3',
     useRawBaseUrl: true,
     authTypes: ['api-key'],
-    models: ['hy3'],
+    models: ['hy4-preview', 'hy3'],
   },
   {
     name: 'Tencent Cloud Token Plan (Enterprise)',
@@ -459,7 +461,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     baseUrl: 'https://tokenhub.tencentmaas.com/plan/v3',
     useRawBaseUrl: true,
     authTypes: ['api-key'],
-    models: ['hy3'],
+    models: ['hy4-preview', 'hy3'],
   },
   {
     name: 'Model Scope (API-Inference)',
@@ -575,7 +577,12 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     completion: { baseUrl: '../beta' },
     balanceProvider: { method: 'deepseek' },
     authTypes: ['api-key'],
-    models: ['deepseek-v4-flash', 'deepseek-v4-flash-vision-exp', 'deepseek-v4-pro'],
+    models: [
+      'deepseek-flash',
+      'deepseek-v4-flash',
+      'deepseek-v4-flash-vision-exp',
+      'deepseek-v4-pro',
+    ],
   },
   {
     name: 'Gitee AI',
@@ -591,7 +598,13 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://api.xiaomimimo.com/v1',
     authTypes: ['api-key'],
-    models: ['mimo-v2.5-pro', 'mimo-v2.5'],
+    models: [
+      'mimo-v2.6-pro',
+      'mimo-v2.6-flash',
+      'mimo-v2.6-pro-ultraspeed',
+      'mimo-v2.5-pro',
+      'mimo-v2.5',
+    ],
   },
   {
     name: 'Xiaomi MIMO (China, Token Plan)',
@@ -599,7 +612,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://token-plan-cn.xiaomimimo.com/v1',
     authTypes: ['api-key'],
-    models: ['mimo-v2.5-pro', 'mimo-v2.5'],
+    models: ['mimo-v2.6-pro', 'mimo-v2.6-flash', 'mimo-v2.5-pro', 'mimo-v2.5'],
   },
   {
     name: 'Xiaomi MIMO (Singapore, Token Plan)',
@@ -607,7 +620,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://token-plan-sgp.xiaomimimo.com/v1',
     authTypes: ['api-key'],
-    models: ['mimo-v2.5-pro', 'mimo-v2.5'],
+    models: ['mimo-v2.6-pro', 'mimo-v2.6-flash', 'mimo-v2.5-pro', 'mimo-v2.5'],
   },
   {
     name: 'Xiaomi MIMO (Europe, Token Plan)',
@@ -615,7 +628,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     type: 'openai-chat-completion',
     baseUrl: 'https://token-plan-ams.xiaomimimo.com/v1',
     authTypes: ['api-key'],
-    models: ['mimo-v2.5-pro', 'mimo-v2.5'],
+    models: ['mimo-v2.6-pro', 'mimo-v2.6-flash', 'mimo-v2.5-pro', 'mimo-v2.5'],
   },
   {
     name: 'StepFun (China)',
@@ -693,6 +706,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     authTypes: ['api-key'],
     models: [
       'glm-5.3',
+      'glm-5.3-flashx',
       'glm-5.3-flash',
       'glm-5.2',
       'glm-5v-turbo',
@@ -729,6 +743,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     authTypes: ['api-key'],
     models: [
       'glm-5.3',
+      'glm-5.3-flashx',
       'glm-5.3-flash',
       'glm-5.2',
       'glm-5v-turbo',
@@ -925,6 +940,7 @@ export const WELL_KNOWN_PROVIDERS: WellKnownProviderConfig[] = [
     baseUrl: 'https://api.anthropic.com',
     authTypes: ['api-key', 'claude-code'],
     models: [
+      'claude-fable-5-1',
       'claude-fable-5',
       'claude-mythos-5',
       'claude-opus-5',

@@ -220,6 +220,17 @@ beforeEach(() => {
 });
 
 describe('Antigravity streamChat request routing', () => {
+  it('keeps the Fable 5.1 identity distinct from Fable 5', async () => {
+    const body = await captureRequestBody('claude-fable-5-1', 'high');
+    expect(body).toMatchObject({ model: 'claude-fable-5-1' });
+    expect(JSON.stringify(body)).toContain(
+      'You are Model Claude Fable 5.1, ModelId is claude-fable-5-1.',
+    );
+    expect(JSON.stringify(body)).not.toContain(
+      'You are Model Claude Fable 5,',
+    );
+  });
+
   it('sends Gemini 3.7 minimal through the low runtime route', async () => {
     const body = await captureRequestBody('gemini-3.7-flash', 'minimal');
 

@@ -967,6 +967,11 @@ const ANTIGRAVITY_MODEL_INFO: ReadonlyArray<{
   canonicalId: string;
 }> = [
   {
+    prefix: 'claude-fable-5-1',
+    displayName: 'Claude Fable 5.1',
+    canonicalId: 'claude-fable-5-1',
+  },
+  {
     prefix: 'claude-fable-5',
     displayName: 'Claude Fable 5',
     canonicalId: 'claude-fable-5',
