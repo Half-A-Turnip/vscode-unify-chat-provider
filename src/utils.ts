@@ -2911,6 +2911,12 @@ export function sanitizeMessagesForModelSwitchDetailed(
             part.mimeType === DataPartMimeTypes.StatefulMarker,
         );
 
+        // Agent Host relays can omit stateful markers. Let the provider replay
+        // those messages best-effort; only present markers can prove a mismatch.
+        if (markerParts.length === 0) {
+          continue;
+        }
+
         if (markerParts.length !== 1) {
           isRoundValid = false;
           break;
